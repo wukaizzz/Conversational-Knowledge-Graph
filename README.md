@@ -1,2 +1,2 @@
 # Conversational-Knowledge-Graph
-一个交互型的知识图谱项目
+This is a Conversational knowledge Graph
