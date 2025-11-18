@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --interactive-bg-secondary-hover:#ffffff1a;
+  --interactive-bg-secondary-press:#ffffff0d;
+  /* sideabr */
+  --sidebar-width: 260px;
+  --header-height: calc(0.25rem * 13);
+  --text-primary: #fff;
+  --surface-hover: #ffffff26;
+  /* sidebar section */
+  --user-chat-width: 70%;
+  --sidebar-width: 260px;
+  --sidebar-section-margin-top: 1.25rem;
+  --sidebar-section-first-margin-top: .5rem;
+  --sidebar-expanded-section-margin-bottom: 1.25rem;
+  --sidebar-collapsed-section-margin-bottom: .75rem;
+  --sidebar-rail-width: calc(var(--spacing)*13);
+  --header-height: calc(var(--spacing)*13);
+  /* menu-item */
+  --menu-item-highlighted: var(--interactive-bg-secondary-hover);
+  --menu-item-active: var(--interactive-bg-secondary-press);
+  --menu-item-open: var(--interactive-bg-secondary-press);
+  --text-tertiary:#afafaf;
+  /* sidebar-botton */
+  --bg-elevated-secondary:#181818;
+}
+.icon {
+  flex-grow: 0;
+  flex-shrink: 0;
+  height: calc(var(--spacing) * 5 );
+  width: calc(var(--spacing) * 5);
+}
