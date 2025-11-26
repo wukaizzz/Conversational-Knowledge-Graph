@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ChatView from './views/ChatView.vue';
+import KGView from './knowledge_graph/KGView.vue';
 import { RouterLink, RouterView } from 'vue-router'
 </script>
 
@@ -21,6 +22,7 @@ import { RouterLink, RouterView } from 'vue-router'
   <RouterView /> -->
   <div class="flex h-screen w-full">
     <ChatView></ChatView>
+     <!-- <KGView></KGView> -->
   </div>
 </template>
 

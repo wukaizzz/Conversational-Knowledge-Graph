@@ -6,6 +6,7 @@ export default {
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
     './public/**/*.{html,vue,js}',
+    './src/components/ui/**/*.{js,ts,vue}',
   ],
   theme: {
     extend: {
@@ -16,6 +17,8 @@ export default {
         "token-text-primary": "var(--text-primary)",
         "token-surface-hover": "var(--surface-hover)",
         "token-text-tertiary": "var(--text-tertiary)",
+        "token-main-surface-primary":"var(--main-surface-primary)"
+        "token-bg-primary":"var(--bg-primary)"
       },
       screens: {
         tall: {
@@ -28,16 +31,5 @@ export default {
     },
   },
   plugins: [
-    // plugin(function ({ addUtilities }) {
-    //   addUtilities({
-    //     /* 禁止浏览器原生拖拽行为 */
-    //     '.no-draggable': {
-    //       '-webkit-user-select': 'none',
-    //       '-moz-user-select': 'none',
-    //       '-ms-user-select': 'none',
-    //       'user-select': 'none',
-    //     }
-    //   })
-    // })
   ]
 }

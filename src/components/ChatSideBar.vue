@@ -52,7 +52,7 @@
               </div>
             </a>
           </aside>
-          <div class="pb-[calc(var(--sidebar-section-margin-top) - var(--sidebar-section-first-margin-top))]">
+          <div class="pb-[calc(var(--sidebar-section-margin-top)-var(--sidebar-section-first-margin-top))]">
             <div tabindex="0" class="group menu-item gap-1.5">
               <div class="flex items-center justify-center icon group-disabled:opacity-50">
                 <FilesCreate></FilesCreate>
@@ -62,22 +62,23 @@
               </div>
             </div>
           </div>
-          <div class=" group/sidebar-expando-section mb-[var(--sidebar-expanded-section-margin-bottom)]">
-            <div tabindex="0" class="group menu-item" data-no-hover-bg="true" data-no-content-gap="true">
+          <div class=" group/sidebar-expando-section mb-[var(--sidebar-expanded-section-margin-bottom)">
+            <div tabindex="0" class="group menu-item mx-[6px]" data-no-hover-bg="true" data-no-content-gap="true">
               <div class="flex w-full items-center justify-start gap-0.5"> 
-                <h2>聊天</h2>
+                <h2>你的聊天</h2>
                 <DropDown></DropDown>
               </div>
             </div>
             <div id="history">
               <!-- route -->
+               <ChatRoute to="https://www.baidu.com">毛概</ChatRoute>
             </div>
           </div>
           <div class="grow"></div>
           <div class="sticky bottom-0 z-30 empty:hidden bg-[var(--bg-elevated-secondary)]">
             <div class="relative">
               <div class>
-                <div class="group menu-item gap-2" tabindex="0" aria-expanded="false">
+                <div class="group menu-item gap-2 mx-[6px] p-[10px] pl-[8px]" tabindex="0" aria-expanded="false">
                   <div class="flex items-center justify-center opacity-50">
                     <div class="flex overflow-hidden h-6 w-6 shrink-0 rounded-md">
                       <!-- personal -->
@@ -113,7 +114,7 @@
   import ChatRoute from './ChatRoute.vue';
 </script>
 
-<style scoped>
+<style scoped lang="css">
   .menu-item {
     position: relative;
     display: flex;
@@ -135,4 +136,7 @@
   .menu-item:active {
     background: var(--menu-item-active);
   }
+  .object-cover {
+    object-fit: cover;
+  } 
 </style>

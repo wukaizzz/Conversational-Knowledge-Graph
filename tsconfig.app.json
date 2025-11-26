@@ -5,13 +5,19 @@
     "src/**/*", 
     "src/**/*.vue",
     "public/components/**/*.vue",
-    "public/assets/**/*.vue"
+    "public/assets/**/*.vue",
   ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
+    "target": "es2020",
+    "noEmit": true,
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-
+    "lib": [
+      "ES2015",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "paths": {
       "@/*": ["./src/*"]
     }
