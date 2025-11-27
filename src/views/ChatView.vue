@@ -18,7 +18,7 @@
                 </div>
                 <!-- weibu -->
                 <div class="w-full h-[88px]">
-                  <!-- <ChatInput></ChatInput> -->
+                  <ChatInput></ChatInput>
                 </div>
               </div>
             </div>
@@ -32,7 +32,7 @@
   import HeaderBar from '@/components/HeaderBar.vue';
 import ChatSideBar from '../components/ChatSideBar.vue';
 import ChatFull from '@/components/ChatFull.vue';
-// import ChatInput from '@/components/ChatInput.vue';
+import ChatInput from '@/components/ChatInput.vue';
   
 </script>
 

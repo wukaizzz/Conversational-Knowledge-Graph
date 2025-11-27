@@ -2,9 +2,13 @@
 /* GPT */
 :root {
   --spacing: .25rem;
+  /* 768px */
   --breakpoint-md: 48rem;
+  /* 1024 */
   --breakpoint-lg: 64rem;
+  /* 1280 */
   --breakpoint-xl: 80rem;
+  /* 1536 */
   --breakpoint-2xl: 96rem;
   --container-xs: 20rem;
   --container-sm: 24rem;
@@ -132,6 +136,10 @@
   --focus-outline-margin-default: 4px;
   /* 尾部 */
   --bg-primary: #212121;
+  /* send btn */
+  --theme-submit-btn-bg: #fff;
+  --theme-submit-btn-text: #000;
+  --vt-disclaimer:'disclaimer-transition'
 }
 
 

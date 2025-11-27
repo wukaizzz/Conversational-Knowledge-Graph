@@ -7,7 +7,6 @@
   --interactive-bg-secondary-press:#ffffff0d;
   /* sideabr */
   --sidebar-width: 260px;
-  --header-height: calc(0.25rem * 13);
   --text-primary: #fff;
   --surface-hover: #ffffff26;
   /* sidebar section */
@@ -17,8 +16,8 @@
   --sidebar-section-first-margin-top: .5rem;
   --sidebar-expanded-section-margin-bottom: 1.25rem;
   --sidebar-collapsed-section-margin-bottom: .75rem;
-  --sidebar-rail-width: calc(var(--spacing) * 13);
-  --header-height: calc(var(--spacing) * 13);
+  --sidebar-rail-width: calc(var(--spacing, .25rem) * 13);
+  --header-height: calc(var(--spacing, .25rem) * 13);
   /* menu-item */
   --menu-item-highlighted: var(--interactive-bg-secondary-hover);
   --menu-item-active: var(--interactive-bg-secondary-press);
@@ -32,8 +31,8 @@
 .icon {
   flex-grow: 0;
   flex-shrink: 0;
-  height: calc(var(--spacing) * 5 );
-  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing, .25rem) * 5 );
+  width: calc(var(--spacing, .25rem) * 5);
 }
 .icon-lg {
   flex-grow: 0;
@@ -55,8 +54,8 @@
   font-weight: var(--font-weight-medium);
   justify-content: center;
   line-height: var(--tw-leading, var(--text-sm--line-height));
-  min-height: calc(var(--spacing) * 9);
-  padding-inline: calc(var(--spacing) * 3);
+  min-height: calc(var(--spacing, .25rem) * 9);
+  padding-inline: calc(var(--spacing, .25rem) * 3);
   pointer-events: auto;
 }
 

@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="flex flex-col min-w-0 flex-1">
-      <div id="stats-container" class="flex-col justify-center ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-5 hidden">
+      <div id="stats-container" class="flex-col justify-center ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-5" :class="{ hidden:isStatsMenuHidden }">
         <h5 class="flex justify-start">graph Statistics</h5>
         <div class="flex flex-row flex-nowrap gap-[20px]">
           <div class="state-item">
@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div id="physics-settings-container" class="ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-5 hidden">
+      <div id="physics-settings-container" class="ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-5" :class="{ hidden:isPhyscisSettginsMenuHidden }">
         <h5 class="flex justify-start">physcis Settings</h5>
         <div class="flex flex-row flex-wrap gap-[15px]">  
           <div class="min-w-[200px] flex">
@@ -70,7 +70,7 @@
           </div>
         </div>
       </div>
-      <div id="filter-menu-container" class="ml-[10px] px-[15px] mt-[10px] pt-[15px] hidden">
+      <div id="filter-menu-container" class="ml-[10px] px-[15px] mt-[10px] pt-[15px]" :class="{ hidden:isFilterMenuHidden }">
         <div class="filter-row flex flex-row gap-[10px] mb-[10px]">
           <select id="select-node" class="form-select min-w-[770px] flex-1">
             <!-- options -->
@@ -108,21 +108,24 @@
 </template>
 
 <script setup lang="ts" name="KGView">
+  import { ref } from 'vue';
   import './assets/main.css';
   import GenerateGraph from './GenerateGraph.vue';
+  const isStatsMenuHidden = ref(true);
+  const isPhyscisSettginsMenuHidden = ref(true);
+  const isFilterMenuHidden = ref(true);
   function filterToggle(){
-    $('#filter-menu-container').toggleClass('hidden');
-    // console.log(111);
+    isFilterMenuHidden.value = !isFilterMenuHidden.value
   } 
   function physicsSettingsToggle(){
-    $('#physics-settings-container').toggleClass('hidden');
+    isPhyscisSettginsMenuHidden.value = !isPhyscisSettginsMenuHidden.value;
   }
   function statsToggle(){
-    $('#stats-container').toggleClass('hidden');
-    // console.log(111)
+    isStatsMenuHidden.value = !isStatsMenuHidden.value
   }
   function toggleTheme(){
-    $('body').toggleClass('dark-mode');
+    // $('body').toggleClass('dark-mode');
+    document.querySelector('body').classList.toggle('dark-mode');
   }
 </script>
 

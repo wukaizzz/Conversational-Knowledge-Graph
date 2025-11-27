@@ -79,7 +79,7 @@ const externalHref = computed(() => {
     align-items: center;
     border-radius: 10px;
     font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
+    line-height: var(--tw-leading, var(--text-sm-line-height));
     min-height: var(--menu-item-height);
     padding-block: calc(var(--spacing) * 1.5);
     padding-inline: calc(var(--spacing) * 2.5);

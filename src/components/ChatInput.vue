@@ -1,7 +1,8 @@
+
 <template>
   <div  id="thread-bottom-container" class="group/thread-bottom-container relative isolate z-10 w-full basis-auto md:border-transparent md:pt-0 dark:border-white/20 md:dark:border-transparent content-fade single-line flex flex-col">
-    <div id="thread-bottom">
-      <div class="text-base mx-auto [--thread-content-margin:--spacing(4)] thread-sm:[--thread-content-margin:--spacing(6)] thread-lg:[--thread-content-margin:--spacing(16)] px-(--thread-content-margin)">
+    <div id="thread-bottom" class="px-[24px]">
+      <div class="text-base mx-auto max-w-[40rem] xl:max-w-[48rem] px-(--thread-content-margin)">
         <div class="[--thread-content-max-width:40rem] thread-lg:[--thread-content-max-width:48rem] mx-auto max-w-(--thread-content-max-width) flex-1">
           <div class="flex justify-center empty:hidden"></div>
           <!-- 全屏 vs 固定底栏 -->
@@ -22,18 +23,60 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
 有 data-expanded → 负 margin 被 mb-0 覆盖 → 贴底无空隙，更宽松 -->
                 <div class="-my-2.5 flex min-h-14 items-center overflow-x-hidden px-1.5 [grid-area:primary] group-data-expanded/composer:mb-0 group-data-expanded/composer:px-2.5" style="transform: none; transform-origin: 50% 50% 0px;">
                   <div class="_prosemirror-parent_1dsxi_2 text-token-text-primary max-h[max(30svh,5rem)] max-h-52 flex-1 overflow-auto default-browser vertical-scroll-fade-mask">
-                    <textarea class="_fallbackTextarea_1dsxi_2"  name="prompt-textarea" autofocus placeholder="输入一个关键词" data-virtualkeyboard="true" style="display: none;">
-
+                    <!-- <textarea class="_fallbackTextarea_1dsxi_2"  name="prompt-textarea" autofocus placeholder="输入一个关键词" data-virtualkeyboard="true" style="display: none;">
                     </textarea>
                     <div contenteditable="true" translate="no" class="ProseMirror" ref="editorEL" data-virtualkeyboard="true">
-                      <!-- proseMirror生成占位符 -->
+                    </div> -->
+                    <textarea
+                      class="fallback-textarea"
+                      name="prompt-textarea"
+                      placeholder="输入一个消息..."
+                      autofocus
+                      style="display: none;"
+                    />
+                    <!-- 核心编辑器容器 -->
+                    <div
+                      ref="innerRef"
+                      class="pm-inner"
+                      :class="{ 'is-scrolling': isScrolling }"
+                    >
+                      <div
+                        contenteditable="true"
+                        translate="no"
+                        class="ProseMirror"
+                        ref="editorEL"
+                        data-virtualkeyboard="true"
+                      >
+                      <!-- ProseMirror 会在这里生成内容 -->
+                      </div>
                     </div>
+                    <!-- ChatGPT 那种底部渐隐遮罩（仅在滚动时出现） -->
+                    <div class="scroll-fade-mask" />
+                  </div>
+                </div>
+                <div class="[grid-area:leading]" style="transform: none; transform-origin: 50% 50% 0px;">
+                  <span class="flex" data-state="closed">
+                    <button type="button" class="composer-btn" id="composer-plus-btn" data-state="closed">
+                      <!-- 模型选择 svg -->
+                      <ToggleLLM></ToggleLLM>
+                    </button>
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 [grid-area:trailing]" style="transform: none; transform-origin: 50% 50% 0px;">
+                  <div class="ms-auto flex items-center gap-1.5">
+                    <button id="composer-submit-button" data-testid="send-button" class="composer-submit-btn composer-submit-button-color h-9 w-9 rounded-3xl flex items-center justify-center">
+                      <!-- send svg -->
+                      <SendBtn></SendBtn>
+                    </button>
                   </div>
                 </div>
               </div>
             </form>
           </div>
         </div>
+      </div>
+      <div class="text-token-text-secondary relative mt-auto min-h-8 w-full flex items-center justify-center p-2 text-center text-xs [view-transition-name:var(--vt-disclaimer)] md:px-[60px]">
+        <div class="pointer-events-auto text-[#f3f3f3]">你想要了解什么知识点</div>
       </div>
     </div>
   </div>
@@ -51,32 +94,36 @@ import { baseKeymap } from 'prosemirror-commands';
 import { placeholder } from 'prosemirror-placeholder';
 import { history, undo, redo } from 'prosemirror-history'
 import 'prosemirror-view/style/prosemirror.css'; 
+// svg
+import ToggleLLM from './icons/ToggleLLM.vue';
+import SendBtn from './icons/SendBtn.vue';
+
+// const editorEL = ref(null);
+// let view:EditorView | null = null;
+// onMounted(()=>{
+//   // 快捷键
+//   const customKeymap = {
+//     'Mod-z':undo,
+//     'Mod-shift-z':redo,
+//   };
+//   const state = EditorState.create({
+//     schema,
+//     plugins: [
+//       history(),
+//       placeholder('询问任何问题'),
+//       keymap(baseKeymap),
+//       keymap(customKeymap)
+//     ]
+//   });
+//   view = new EditorView(document.querySelector('#prompt-textarea'), {
+//     state,
+//   });
+// })
+// onBeforeUnmount(() => {
+//   view?.destroy()
+// })
 
 
-const editorEL = ref(null);
-let view = null;
-onMounted(()=>{
-  // 快捷键
-  const customKeymap = {
-    'Mod-z':undo,
-    'Mod-shift-z':redo,
-  };
-  const state = EditorState.create({
-    schema,
-    plugins: [
-      history(),
-      placeholder('询问任何问题'),
-      keymap(baseKeymap),
-      keymap(customKeymap)
-    ]
-  });
-  view = new EditorView(document.querySelector('#prompt-textarea'), {
-    state,
-  });
-})
-onBeforeUnmount(() => {
-  view?.destroy()
-})
 </script>
 
 <style scoped lang="css">
@@ -133,4 +180,19 @@ onBeforeUnmount(() => {
 /* ._prosemirror-parent_1dsxi_2.default-browser .placeholder .ProseMirror-trailingBreak {
     display: none!important;
 } */
+ .composer-btn:before {
+    --tw-translate-x: -50%;
+    --tw-translate-y: -50%;
+    content: var(--tw-content);
+    inset: calc(var(--spacing)*0);
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: var(--tw-rotate-x,)var(--tw-rotate-y,)var(--tw-rotate-z,)var(--tw-skew-x,)var(--tw-skew-y,);
+    translate: var(--tw-translate-x)var(--tw-translate-y);
+}
+.composer-submit-button-color {
+    background-color: var(--theme-submit-btn-bg);
+    color: var(--theme-submit-btn-text);
+}
 </style>

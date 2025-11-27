@@ -1,5 +1,5 @@
 <template>
-  <div id="SideBar" class="relative overflow-hidden h-full" style="width:var(--sidebar-width);background-color: var(--bg-elevated-secondary);">
+  <div id="SideBar" class="hidden md:block relative overflow-hidden h-full" style="width:var(--sidebar-width);background-color: var(--bg-elevated-secondary);">
     <div class="relative flex h-full flex-col">
       <div id="SideBar-tiny-bar" v-show="false">
       </div>
@@ -75,7 +75,7 @@
             </div>
           </div>
           <div class="grow"></div>
-          <div class="sticky bottom-0 z-30 empty:hidden bg-[var(--bg-elevated-secondary)]">
+          <div class="sticky bottom-0 z-30 empty:hidden bg-[var(--bg-elevated-secondary)] mb-[5px]">
             <div class="relative">
               <div class>
                 <div class="group menu-item gap-2 mx-[6px] p-[10px] pl-[8px]" tabindex="0" aria-expanded="false">

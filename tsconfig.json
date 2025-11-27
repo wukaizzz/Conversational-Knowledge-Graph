@@ -7,35 +7,5 @@
     {
       "path": "./tsconfig.app.json"
     }
-  ],
-  "compilerOptions": {
-    //  cytoscape 模块的导出方式与 TypeScript 的默认导入规则不兼容
-    "esModuleInterop": true, // 启用该配置
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src"
-    ],
-    //  TS 误判业务目录为类型库
-    "types": [],
-    "lib": [
-      "ES2015",
-      "DOM",
-      "DOM.Iterable"
-    ],
-  },
-  "include": [
-    "src/**/*"
   ]
-  // 
-  // "include": [
-  //   "src/**/*.ts",
-  //   "src/**/*.d.ts",
-  //   "src/**/*.vue"
-  // ]
 }
