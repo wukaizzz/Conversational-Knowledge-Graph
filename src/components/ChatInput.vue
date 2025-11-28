@@ -15,13 +15,13 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
 同时 flex-[0 0 auto] 让它 不再吃剩余空间，而是 固定尺寸。 -->
           <div class="pointer-events-auto relative z-1 flex h-[var(--composer-container-height,100%)] max-w-full flex-[var(--composer-container-flex,1)]">
             <div class="absolute start-0 end-0 bottom-full z-20"></div>
-            <form action="" class="group/composer w-full "> 
+            <form action="" class="group/composer w-full" ref="composerRef"> 
               <!-- 「三栏自适应 + 一键重排」——
-只要 JS 给祖先加一句 data-expanded=""，Grid 区域瞬间换布局，不用改 DOM 顺序，一条类名搞定。 -->
-              <div class="bg-token-bg-primary cursor-text overflow-clip bg-clip-padding p-2.5 contain-inline-size dark:bg-[#303030] grid grid-cols-[auto_1fr_auto] [grid-template-areas:'header_header_header'_'leading_primary_trailing'_'._footer_.'] group-data-expanded/composer:[grid-template-areas:'header_header_header'_'primary_primary_primary'_'leading_footer_trailing'] shadow-short" style="border-radius: 28px; transform: none; transform-origin: 50% 50% 0px;">
+只要 JS 给祖先加一句 npm ，Grid 区域瞬间换布局，不用改 DOM 顺序，一条类名搞定。 -->
+              <div class="bg-token-bg-primary cursor-text overflow-clip bg-clip-padding p-2.5 contain-inline-size dark:bg-[#303030] grid items-end grid-cols-[auto_1fr_auto] [grid-template-areas:'header_header_header'_'leading_primary_trailing'_'._footer_.'] group-data-expanded/composer:[grid-template-areas:'header_header_header'_'primary_primary_primary'_'leading_footer_trailing'] shadow-short" style="border-radius: 28px; transform: none; transform-origin: 50% 50% 0px;">
                 <!-- 没 data-expanded → 负 margin 继续存在，视觉上顶底穿透，更紧凑
 有 data-expanded → 负 margin 被 mb-0 覆盖 → 贴底无空隙，更宽松 -->
-                <div class="-my-2.5 flex min-h-14 items-center overflow-x-hidden px-1.5 [grid-area:primary] group-data-expanded/composer:mb-0 group-data-expanded/composer:px-2.5" style="transform: none; transform-origin: 50% 50% 0px;">
+                <div class="-my-2.5 flex min-h-0 items-stretch overflow-x-hidden px-1.5 [grid-area:primary] group-data-expanded/composer:mb-0 group-data-expanded/composer:px-2.5" style="transform: none; transform-origin: 50% 50% 0px;">
                   <div class="_prosemirror-parent_1dsxi_2 text-token-text-primary max-h[max(30svh,5rem)] max-h-52 flex-1 overflow-auto default-browser vertical-scroll-fade-mask">
                     <!-- <textarea class="_fallbackTextarea_1dsxi_2"  name="prompt-textarea" autofocus placeholder="输入一个关键词" data-virtualkeyboard="true" style="display: none;">
                     </textarea>
@@ -39,6 +39,7 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
                       ref="innerRef"
                       class="pm-inner"
                       :class="{ 'is-scrolling': isScrolling }"
+                      @click="focusEditor"
                     >
                       <div
                         contenteditable="true"
@@ -54,7 +55,7 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
                     <div class="scroll-fade-mask" />
                   </div>
                 </div>
-                <div class="[grid-area:leading]" style="transform: none; transform-origin: 50% 50% 0px;">
+                <div class="[grid-area:leading] composer-leading" style="transform: none; transform-origin: 50% 50% 0px;">
                   <span class="flex" data-state="closed">
                     <button type="button" class="composer-btn" id="composer-plus-btn" data-state="closed">
                       <!-- 模型选择 svg -->
@@ -62,7 +63,7 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
                     </button>
                   </span>
                 </div>
-                <div class="flex items-center gap-2 [grid-area:trailing]" style="transform: none; transform-origin: 50% 50% 0px;">
+                <div class="flex items-center gap-2 [grid-area:trailing] composer-trailing" style="transform: none; transform-origin: 50% 50% 0px;">
                   <div class="ms-auto flex items-center gap-1.5">
                     <button id="composer-submit-button" data-testid="send-button" class="composer-submit-btn composer-submit-button-color h-9 w-9 rounded-3xl flex items-center justify-center">
                       <!-- send svg -->
@@ -84,7 +85,7 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
 
 <script setup lang="ts" name="ChatInput">
 
-import { onMounted,ref,onBeforeUnmount } from 'vue';
+import { onMounted,ref } from 'vue';
 // prosemirror
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
@@ -102,10 +103,7 @@ import SendBtn from './icons/SendBtn.vue';
 // let view:EditorView | null = null;
 // onMounted(()=>{
 //   // 快捷键
-//   const customKeymap = {
-//     'Mod-z':undo,
-//     'Mod-shift-z':redo,
-//   };
+
 //   const state = EditorState.create({
 //     schema,
 //     plugins: [
@@ -122,7 +120,72 @@ import SendBtn from './icons/SendBtn.vue';
 // onBeforeUnmount(() => {
 //   view?.destroy()
 // })
+const innerRef = ref<HTMLElement>()
+const editorEL = ref<HTMLElement>()
+const composerRef = ref<HTMLElement>()
+const isScrolling = ref(false)
+let view:EditorView;
 
+const MAX_LINES = 14;
+const LINE_HEIGHT = 28;
+const MIN_LINES = 1;
+const EXPAND_THRESHOLD = 2
+
+const updateHeight = () => {
+  if (!innerRef.value) return
+
+  const el = innerRef.value
+  el.style.height = 'auto'
+  const needed = el.scrollHeight
+  const maxHeight = LINE_HEIGHT * MAX_LINES
+  const minHeight = LINE_HEIGHT * MIN_LINES
+  const clamped = Math.max(Math.min(needed, maxHeight), minHeight)
+
+  el.style.height = `${clamped}px`
+  el.style.overflowY = needed > maxHeight ? 'auto' : 'hidden'
+
+  const lines = Math.ceil(needed / LINE_HEIGHT)
+  if (composerRef.value) {
+    if (lines > EXPAND_THRESHOLD) {
+      composerRef.value.setAttribute('data-expanded', '')
+    } else {
+      composerRef.value.removeAttribute('data-expanded')
+    }
+  }
+
+  // 控制渐隐遮罩显示
+  isScrolling.value = needed > maxHeight
+}
+
+const focusEditor = () => {
+  view?.focus()
+}
+
+onMounted(() => {
+  const customKeymap = {
+    'Mod-z':undo,
+    'Mod-shift-z':redo,
+  };
+  const mountEL = editorEL.value!;
+  view = new EditorView(mountEL, {
+    state: EditorState.create({
+      schema,
+      doc: schema.nodes.doc.createAndFill() ?? undefined,
+      plugins: [
+        history(),
+        placeholder('键入一个关键词'),
+        keymap(baseKeymap),
+        keymap(customKeymap)
+      ]
+    }),
+    dispatchTransaction(tr) {
+      const newState = view.state.apply(tr)
+      view.updateState(newState)
+      updateHeight();
+    }
+  })
+  requestAnimationFrame(updateHeight)
+})
 
 </script>
 
@@ -177,9 +240,9 @@ import SendBtn from './icons/SendBtn.vue';
     white-space: pre-wrap;
     white-space: break-spaces;
 }
-/* ._prosemirror-parent_1dsxi_2.default-browser .placeholder .ProseMirror-trailingBreak {
+._prosemirror-parent_1dsxi_2.default-browser .placeholder .ProseMirror-trailingBreak {
     display: none!important;
-} */
+}
  .composer-btn:before {
     --tw-translate-x: -50%;
     --tw-translate-y: -50%;
@@ -194,5 +257,100 @@ import SendBtn from './icons/SendBtn.vue';
 .composer-submit-button-color {
     background-color: var(--theme-submit-btn-bg);
     color: var(--theme-submit-btn-text);
+}
+/* 输入框 */
+.pm-parent {
+  position: relative;
+  flex: 1;
+  max-height: max(30svh, 5rem);
+  max-height: 52rem;
+}
+
+.pm-inner {
+  min-height: 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--composer-surface, rgba(6, 6, 6, 0.85));
+  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: auto hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.pm-inner:focus-within {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.ProseMirror {
+  outline: none !important;
+  min-height: 24px;
+  line-height: 28px;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+}
+
+/* 选中文本白边彻底消失 */
+.ProseMirror::selection,
+.ProseMirror *::selection {
+  background: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* 暗色模式 */
+.dark .pm-inner {
+  background: var(--composer-surface-dark, rgba(8, 8, 8, 0.92));
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.dark .pm-inner:focus-within {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+/* 滚动时的底部渐隐遮罩 */
+.scroll-fade-mask {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.9));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.is-scrolling ~ .scroll-fade-mask {
+  opacity: 1;
+}
+.dark .scroll-fade-mask {
+  background: linear-gradient(transparent, rgba(40,40,40,0.9));
+}
+
+.pm-inner::-webkit-scrollbar {
+  width: 4px;
+}
+.pm-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pm-inner::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.32);
+  border-radius: 999px;
+}
+.pm-inner::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.dark .pm-inner::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.composer-leading,
+.composer-trailing {
+  align-self: end;
+  padding-bottom: 6px;
 }
 </style>

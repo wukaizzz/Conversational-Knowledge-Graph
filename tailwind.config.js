@@ -2,9 +2,10 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    "./src/**/*.{vue,js,ts,svg,html,jsx}",
     './public/**/*.{html,vue,js}',
     './src/components/ui/**/*.{js,ts,vue}',
+    './src/components/**/ *.{ vue, svg }',
   ],
   theme: {
     extend: {
@@ -22,10 +23,10 @@ export default {
         tall: {
           raw: '(min-height:900px)',
         },
-        'md': 'var(--breakpoint-md)',
-        'lg': 'var(--breakpoint-lg)',
-        'xl': 'var(--breakpoint-xl)',
-        '2xl': 'var(--breakpoint-2xl)',
+        md: '768px',
+        lg: '1024px',
+        xl: '1280px',
+        '2xl': '1536px',
       },
     },
   },
