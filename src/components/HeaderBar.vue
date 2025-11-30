@@ -1,9 +1,9 @@
 <template>
   <div>
-    <header id="page-header" class="sticky top-0 p-2 flex items-center justify-between z-20 h-header-height pointer-events-none max-md:hidden bg-token-main-surface-primary">
+    <header id="page-header" class="sticky top-0 px-2 flex items-center justify-between z-20 h-header-height pointer-events-none max-md:hidden bg-token-main-surface-primary start-0 end-0 thread-xl:absolute thread-xl:start-0 thread-xl:end-0 thread-xl:shadow-none!">
       <div class="flex items-center">
         <button type="button" class="group flex cursor-pointer justify-center items-center gap-1 rounded-lg min-h-9 px-2.5 text-lg hover:bg-token-surface-hover focus-visible:bg-token-surface-hover font-normal whitespace-nowrap focus-visible:outline-none">
-          <div>Chat KG</div>
+          <div class="text-token-text-primary">Chat KG</div>
           <DropDown></DropDown>
         </button>
       </div>

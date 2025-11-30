@@ -17,7 +17,7 @@
                   </div>
                 </div>
                 <!-- weibu -->
-                <div class="w-full h-[88px]">
+                <div class="w-full flex-shrink-0">
                   <ChatInput></ChatInput>
                 </div>
               </div>

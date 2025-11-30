@@ -1,6 +1,6 @@
 
 <template>
-  <div  id="thread-bottom-container" class="group/thread-bottom-container relative isolate z-10 w-full basis-auto md:border-transparent md:pt-0 dark:border-white/20 md:dark:border-transparent content-fade single-line flex flex-col">
+  <div  id="thread-bottom-container" class="group/thread-bottom-container bg-token-main-surface-primary relative isolate z-10 w-full basis-auto md:border-transparent md:pt-0 dark:border-white/20 md:dark:border-transparent content-fade flex flex-col">
     <div id="thread-bottom" class="px-[24px]">
       <div class="text-base mx-auto max-w-[40rem] xl:max-w-[48rem] px-(--thread-content-margin)">
         <div class="[--thread-content-max-width:40rem] thread-lg:[--thread-content-max-width:48rem] mx-auto max-w-(--thread-content-max-width) flex-1">
@@ -18,10 +18,10 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
             <form action="" class="group/composer w-full" ref="composerRef"> 
               <!-- 「三栏自适应 + 一键重排」——
 只要 JS 给祖先加一句 npm ，Grid 区域瞬间换布局，不用改 DOM 顺序，一条类名搞定。 -->
-              <div class="bg-token-bg-primary cursor-text overflow-clip bg-clip-padding p-2.5 contain-inline-size dark:bg-[#303030] grid items-end grid-cols-[auto_1fr_auto] [grid-template-areas:'header_header_header'_'leading_primary_trailing'_'._footer_.'] group-data-expanded/composer:[grid-template-areas:'header_header_header'_'primary_primary_primary'_'leading_footer_trailing'] shadow-short" style="border-radius: 28px; transform: none; transform-origin: 50% 50% 0px;">
+              <div class="composer-shell bg-token-bg-primary cursor-text overflow-clip bg-clip-padding p-2.5 contain-inline-size dark:bg-[#303030] grid items-end grid-cols-[auto_1fr_auto] [grid-template-areas:'header_header_header'_'leading_primary_trailing'_'._footer_.'] group-data-expanded/composer:[grid-template-areas:'header_header_header'_'primary_primary_primary'_'leading_footer_trailing'] shadow-short" style="border-radius: 28px; transform: none; transform-origin: 50% 50% 0px;">
                 <!-- 没 data-expanded → 负 margin 继续存在，视觉上顶底穿透，更紧凑
 有 data-expanded → 负 margin 被 mb-0 覆盖 → 贴底无空隙，更宽松 -->
-                <div class="-my-2.5 flex min-h-0 items-stretch overflow-x-hidden px-1.5 [grid-area:primary] group-data-expanded/composer:mb-0 group-data-expanded/composer:px-2.5" style="transform: none; transform-origin: 50% 50% 0px;">
+                <div class="primary-slot -my-2.5 -mb-[8px] flex min-h-0 items-stretch overflow-x-hidden px-1.5 [grid-area:primary] group-data-expanded/composer:mb-0 group-data-expanded/composer:px-2.5" style="transform: none; transform-origin: 50% 50% 0px;">
                   <div class="_prosemirror-parent_1dsxi_2 text-token-text-primary max-h[max(30svh,5rem)] max-h-52 flex-1 overflow-auto default-browser vertical-scroll-fade-mask">
                     <!-- <textarea class="_fallbackTextarea_1dsxi_2"  name="prompt-textarea" autofocus placeholder="输入一个关键词" data-virtualkeyboard="true" style="display: none;">
                     </textarea>
@@ -51,13 +51,12 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
                       <!-- ProseMirror 会在这里生成内容 -->
                       </div>
                     </div>
-                    <!-- ChatGPT 那种底部渐隐遮罩（仅在滚动时出现） -->
                     <div class="scroll-fade-mask" />
                   </div>
                 </div>
                 <div class="[grid-area:leading] composer-leading" style="transform: none; transform-origin: 50% 50% 0px;">
                   <span class="flex" data-state="closed">
-                    <button type="button" class="composer-btn" id="composer-plus-btn" data-state="closed">
+                    <button type="button" class="composer-btn leading-action" id="composer-plus-btn" data-state="closed">
                       <!-- 模型选择 svg -->
                       <ToggleLLM></ToggleLLM>
                     </button>
@@ -76,8 +75,8 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
           </div>
         </div>
       </div>
-      <div class="text-token-text-secondary relative mt-auto min-h-8 w-full flex items-center justify-center p-2 text-center text-xs [view-transition-name:var(--vt-disclaimer)] md:px-[60px]">
-        <div class="pointer-events-auto text-[#f3f3f3]">你想要了解什么知识点</div>
+      <div class="text-token-text-secondary flex-shrink-0 min-h-10 w-full flex items-center justify-center px-4 py-2 text-center text-xs [view-transition-name:var(--vt-disclaimer)] md:px-[60px]">
+        <div class="pointer-events-auto text-[#f3f3f3] w-full">你想要了解什么知识点</div>
       </div>
     </div>
   </div>
@@ -99,52 +98,42 @@ import 'prosemirror-view/style/prosemirror.css';
 import ToggleLLM from './icons/ToggleLLM.vue';
 import SendBtn from './icons/SendBtn.vue';
 
-// const editorEL = ref(null);
-// let view:EditorView | null = null;
-// onMounted(()=>{
-//   // 快捷键
-
-//   const state = EditorState.create({
-//     schema,
-//     plugins: [
-//       history(),
-//       placeholder('询问任何问题'),
-//       keymap(baseKeymap),
-//       keymap(customKeymap)
-//     ]
-//   });
-//   view = new EditorView(document.querySelector('#prompt-textarea'), {
-//     state,
-//   });
-// })
-// onBeforeUnmount(() => {
-//   view?.destroy()
-// })
 const innerRef = ref<HTMLElement>()
 const editorEL = ref<HTMLElement>()
 const composerRef = ref<HTMLElement>()
 const isScrolling = ref(false)
 let view:EditorView;
 
-const MAX_LINES = 14;
-const LINE_HEIGHT = 28;
-const MIN_LINES = 1;
+const MAX_LINES = 14
+const LINE_HEIGHT = 28
+const MIN_CONTENT_HEIGHT = 32
 const EXPAND_THRESHOLD = 2
+let verticalPadding = 0
+
+const measurePadding = () => {
+  if (!innerRef.value) return
+  const styles = window.getComputedStyle(innerRef.value)
+  verticalPadding =
+    parseFloat(styles.paddingTop || '0') + parseFloat(styles.paddingBottom || '0')
+}
 
 const updateHeight = () => {
   if (!innerRef.value) return
+  if (!verticalPadding) measurePadding()
 
   const el = innerRef.value
   el.style.height = 'auto'
   const needed = el.scrollHeight
-  const maxHeight = LINE_HEIGHT * MAX_LINES
-  const minHeight = LINE_HEIGHT * MIN_LINES
-  const clamped = Math.max(Math.min(needed, maxHeight), minHeight)
+  const padding = verticalPadding
+  const contentHeight = Math.max(needed - padding, 0)
+  const maxContentHeight = LINE_HEIGHT * MAX_LINES
+  const clampedContent = Math.min(Math.max(contentHeight, MIN_CONTENT_HEIGHT), maxContentHeight)
 
-  el.style.height = `${clamped}px`
-  el.style.overflowY = needed > maxHeight ? 'auto' : 'hidden'
+  el.style.height = `${clampedContent + padding}px`
+  el.style.overflowY = contentHeight > maxContentHeight ? 'auto' : 'hidden'
 
-  const lines = Math.ceil(needed / LINE_HEIGHT)
+  const effectiveContent = Math.max(contentHeight, LINE_HEIGHT)
+  const lines = Math.ceil(effectiveContent / LINE_HEIGHT)
   if (composerRef.value) {
     if (lines > EXPAND_THRESHOLD) {
       composerRef.value.setAttribute('data-expanded', '')
@@ -154,7 +143,7 @@ const updateHeight = () => {
   }
 
   // 控制渐隐遮罩显示
-  isScrolling.value = needed > maxHeight
+  isScrolling.value = contentHeight > maxContentHeight
 }
 
 const focusEditor = () => {
@@ -193,7 +182,8 @@ onMounted(() => {
 .single-line {
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: clip;   /* 不用 ... 用渐变 */
+   /* 不用 ... 用渐变 */
+  text-overflow: clip;  
 }
 
 .content-fade {
@@ -266,14 +256,17 @@ onMounted(() => {
   max-height: 52rem;
 }
 
+.composer-shell {
+  min-height: 56px;
+}
+
 .pm-inner {
   min-height: 0;
-  padding: 12px 16px;
+  padding: 12px 3px 12px;
   border-radius: 16px;
-  background: var(--composer-surface, rgba(6, 6, 6, 0.85));
+  background: #303030;
   color: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, padding 0.18s ease;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -284,16 +277,35 @@ onMounted(() => {
 
 .pm-inner:focus-within {
   border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  padding-left: 24px;
 }
 
-.ProseMirror {
+.pm-inner .ProseMirror,
+.pm-inner .ProseMirror > * {
   outline: none !important;
   min-height: 24px;
   line-height: 28px;
   margin: 0;
   padding: 0;
   color: inherit;
+  background: transparent;
+}
+
+:deep(.placeholder) {
+  position: relative;
+}
+
+:deep(.placeholder)::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+:deep(.dark .placeholder)::before {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 /* 选中文本白边彻底消失 */
@@ -306,10 +318,6 @@ onMounted(() => {
 .dark .pm-inner {
   background: var(--composer-surface-dark, rgba(8, 8, 8, 0.92));
   border-color: rgba(255, 255, 255, 0.12);
-}
-.dark .pm-inner:focus-within {
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 /* 滚动时的底部渐隐遮罩 */
@@ -351,6 +359,39 @@ onMounted(() => {
 .composer-leading,
 .composer-trailing {
   align-self: end;
-  padding-bottom: 6px;
+}
+
+.composer-leading {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.leading-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.leading-action::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.leading-action:hover::after,
+.leading-action:focus-visible::after {
+  opacity: 0.1;
+  transform: scale(1);
 }
 </style>

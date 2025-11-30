@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full overflow-y-auto thread-xl:pt-(--header-height) [scrollbar-gutter:stable_both-edges]">
+  <div class="flex flex-col h-full overflow-y-auto  bg-token-main-surface-primary thread-xl:pt-(--header-height) [scrollbar-gutter:stable_both-edges]">
     <div class="relative">
       <div aria-hidden="true" data-edge="true" class="pointer-events-none h-px w-px absolute start-0 top-0">
       </div>
