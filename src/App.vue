@@ -21,8 +21,8 @@ import { RouterLink, RouterView } from 'vue-router'
 
   <RouterView /> -->
   <div class="flex h-screen w-full">
-    <ChatView></ChatView>
-     <!-- <KGView></KGView> -->
+    <!-- <ChatView></ChatView> -->
+     <KGView></KGView>
   </div>
 </template>
 

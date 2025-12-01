@@ -24,7 +24,7 @@
 <script setup lang="ts" name="GenerateGraph">
   import { ref, onMounted, type Ref, onUnmounted, watch } from 'vue'
 
-  import cytoscape, {type Core,type NodeDefinition,type EdgeDefinition} from 'cytoscape'
+  import cytoscape, { type Core } from 'cytoscape'
 // 插件
 // 布局插件
 import fcose from 'cytoscape-fcose'; // 导入 fcose
@@ -33,7 +33,7 @@ import coseBilkent from 'cytoscape-cose-bilkent'; // 布局插件
 import panzoom from 'cytoscape-panzoom'; // 平移缩放插件
 import contextMenus from 'cytoscape-context-menus'
 // types
-import type {kgnode,kgedge} from './types/kgData'
+import type { KGNode,KGEdge} from './types/kgData'
 import type { EventObject } from 'cytoscape';
 // 注册插件
 // 物理
@@ -44,15 +44,9 @@ cytoscape.use(coseBilkent)
 cytoscape.use(panzoom)
 cytoscape.use(contextMenus)
 
-type KgNode = NodeDefinition & {
-  data:kgnode;
-};
-type KgEdge = EdgeDefinition & {
-  data:kgedge;
-}
 interface Props {
-  nodes:KgNode[],
-  edges:KgEdge[],
+  nodes: KGNode[],
+  edges: KGEdge[],
   isInteractive?:boolean
 }
 const props = withDefaults(defineProps<Props>(),{
@@ -64,7 +58,7 @@ import { graphStylesheet } from './stylesheet/NodeSheet';
 
 const cy = ref<HTMLDivElement | null>(null);
 let cyInstance: Core | null = null;
-const selectedNode: Ref<KgNode | null> = ref(null)
+const selectedNode: Ref<KGNode | null> = ref(null)
 
 const initGraph = () => { 
   if(!cy.value){
@@ -111,12 +105,12 @@ const handleContainerClick = () => {
   }
 }
 onMounted(initGraph);
-onUnmounted(() => cyInstance?.destroy());
 watch(
   ()=>[props.nodes,props.edges],
   initGraph,
   {deep:true}
 )
+onUnmounted(() => cyInstance?.destroy());
 
 //   // =========================
 //   // 点击节点：显示右侧配置项

@@ -102,8 +102,8 @@
       </div>
       <div id="my-network" class="card-body">
         <GenerateGraph
-          :nodes="myGraphData.nodes"
-          :edges="myGraphData.edges"
+          :nodes="transformedGraphData.nodes"
+          :edges="transformedGraphData.edges"
           :is-interactive="true"
         ></GenerateGraph>
       </div>
@@ -112,9 +112,12 @@
 </template>
 
 <script setup lang="ts" name="KGView">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import './assets/main.css';
   import GenerateGraph from './GenerateGraph.vue';
+  // 
+  import { transformGraphData } from './utils/transform';
+  // 
   const isStatsMenuHidden = ref(true);
   const isPhyscisSettginsMenuHidden = ref(true);
   const isFilterMenuHidden = ref(true);
@@ -231,6 +234,9 @@
           "label": "是"
         }
       ]
+  })
+  const transformedGraphData = computed(()=>{
+    return transformGraphData(myGraphData.value);
   })
 </script>
 

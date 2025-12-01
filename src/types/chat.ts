@@ -1,7 +1,10 @@
+import type { TransformedData } from "@/knowledge_graph/types/kgData";
+
 export interface ChatMessage {
-  id:string;
+  id: string;
   role: 'user' | 'assistant';
-  content: string,
-  status: 'pending' | 'completed' | 'error';
+  type: 'text' | 'graph' | 'loading';
+  content?: string;
+  graphData?: TransformedData;
   timestamp: number;
 }

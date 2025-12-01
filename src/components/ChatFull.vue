@@ -4,14 +4,30 @@
       <div aria-hidden="true" data-edge="true" class="pointer-events-none h-px w-px absolute start-0 top-0">
       </div>
     </div>
-    <div class="flex flex-col text-sm thread-xl:pt-(--header-height) pb-25">
+    <div ref="containerRef" class="flex flex-col text-sm thread-xl:pt-(--header-height) pb-25">
       <!-- message -->
+      <MessageItem
+        v-for="msg in messages"
+        :key="msg.id"
+        :message="msg"
+        @preview-click=""        
+      >
+      </MessageItem>
     </div>
   </div>
 </template>
 
 <script setup lang="ts" name="ChatFull">
-
+  import type { ChatMessage } from '@/types/chat';
+  import { ref } from 'vue';
+import MessageItem from './MessageItem.vue';
+  const props = defineProps<{
+    messages:ChatMessage[]
+  }>();
+  const emit = defineEmits<{
+    (e:'graph-select',data:any):void;
+  }>();
+  const containerRef = ref<HTMLElement | null>(null); 
 </script>
 
 <style scoped lang="css">
@@ -22,5 +38,5 @@
   }
   .pb-25 {
     padding-bottom: calc(var(--spacing)*25);
-}
+  }
 </style>
