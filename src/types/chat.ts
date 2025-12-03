@@ -6,5 +6,7 @@ export interface ChatMessage {
   type: 'text' | 'graph' | 'loading';
   content?: string;
   graphData?: TransformedData;
+  isResumeCard: boolean,
+  snapshotUrl?:string;
   timestamp: number;
 }

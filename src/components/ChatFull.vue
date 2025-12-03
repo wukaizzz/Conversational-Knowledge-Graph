@@ -10,7 +10,7 @@
         v-for="msg in messages"
         :key="msg.id"
         :message="msg"
-        @preview-click=""        
+        @preview-click="onPreviewClick"        
       >
       </MessageItem>
     </div>
@@ -19,8 +19,8 @@
 
 <script setup lang="ts" name="ChatFull">
   import type { ChatMessage } from '@/types/chat';
-  import { ref } from 'vue';
-import MessageItem from './MessageItem.vue';
+  import { ref,watch,nextTick } from 'vue';
+  import MessageItem from './MessageItem.vue';
   const props = defineProps<{
     messages:ChatMessage[]
   }>();
@@ -28,6 +28,21 @@ import MessageItem from './MessageItem.vue';
     (e:'graph-select',data:any):void;
   }>();
   const containerRef = ref<HTMLElement | null>(null); 
+  const onPreviewClick = (data:any)=>{
+    emit('graph-select',data);
+  }
+  watch(
+    () => {
+      return props.messages.length;
+    },
+    () => {
+      nextTick(()=>{
+        if(containerRef.value){
+          containerRef.value.scrollTop = containerRef.value.scrollHeight;
+        }
+      })
+    }
+  )
 </script>
 
 <style scoped lang="css">

@@ -11,9 +11,9 @@
         <div class="flex items-center gap-2">
           <div class="flex items-center">
             <button class="relative text-token-text-primary mx-2 btn btn-ghost">
-              <div class="flex w-full items-start justify-center gap-1.5">
+              <div @click="gotoKG" class="flex w-full items-start justify-center gap-1.5">
                 <!-- svg -->
-                "切换主题"
+                前往图谱
               </div>
             </button>
             <div class="flex items-center">
@@ -32,6 +32,11 @@
 
 <script setup lang="ts" name="HeaderBar">
   import DropDown from './icons/DropDown.vue';
+  import { useKgStore } from '@/stores/kgStore';
+  const kgStore = useKgStore();
+  function gotoKG(){
+    kgStore.showKG()
+;  }
 </script>
 
 <style scoped lang="css">

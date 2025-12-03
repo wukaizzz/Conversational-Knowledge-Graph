@@ -22,27 +22,30 @@
 </template>
 
 <script setup lang="ts" name="GenerateGraph">
-  import { ref, onMounted, type Ref, onUnmounted, watch } from 'vue'
+  import { ref, onMounted, type Ref, onUnmounted, watch, reactive } from 'vue'
 
-  import cytoscape, { type Core } from 'cytoscape'
+  import cytoscape, { type Core,type Position } from 'cytoscape'
 // 插件
 // 布局插件
 import fcose from 'cytoscape-fcose'; // 导入 fcose
 import coseBilkent from 'cytoscape-cose-bilkent'; // 布局插件
+cytoscape.use(fcose);
+cytoscape.use(coseBilkent);
 // 交互插件
 import panzoom from 'cytoscape-panzoom'; // 平移缩放插件
-import contextMenus from 'cytoscape-context-menus'
+import contextMenus from 'cytoscape-context-menus';
+cytoscape.use(panzoom);
+cytoscape.use(contextMenus);
 // types
-import type { KGNode,KGEdge} from './types/kgData'
+import type { RawGraphData,KGNode,KGEdge,TransformedData} from './types/kgData'
 import type { EventObject } from 'cytoscape';
-// 注册插件
-// 物理
-cytoscape.use(fcose);
-// 布局
-cytoscape.use(coseBilkent)
-// 
-cytoscape.use(panzoom)
-cytoscape.use(contextMenus)
+// 路由管理
+import { useRouter } from 'vue-router';
+const router = useRouter();
+// 数据转换
+import { transformGraphData } from './utils/transform';
+// 节流函数
+import throttle from '@/utils/throttle';
 
 interface Props {
   nodes: KGNode[],
@@ -60,55 +63,229 @@ const cy = ref<HTMLDivElement | null>(null);
 let cyInstance: Core | null = null;
 const selectedNode: Ref<KGNode | null> = ref(null)
 
-const initGraph = () => { 
-  if(!cy.value){
-    console.error('图谱容器不存在');
+const layoutConfig = reactive({
+  nodeRepulsion: 4500,
+  idealEdgeLength: 50,
+  edgeElasticity:0.45,
+  gravity:0.25,
+})
+const runLayout = ( isUpdate = false) => {
+  if(!cyInstance){
+    console.log('图谱容器不存在');
     return;
   }
-  if(cyInstance){
-    cyInstance.destroy();
-  }
-  cyInstance = cytoscape({
-    container: cy.value,
-    elements: {
-      nodes:props.nodes,
-      edges:props.edges
-    },
-    layout: {
-      name: 'fcose',
-      incremental: true, // 保留拖拽联动，但优化参数
-      nodeRepulsion: 4500, // 降低排斥力（默认可能4500+，太大易弹飞）
-      idealEdgeLength: 120, // 增大理想边长，避免节点过度拥挤
-      gravity: 0.3, // 增加全局引力，让节点不易飘走
-      numIter: 100, // 限制迭代次数（拖拽后快速稳定，不持续晃动）
-      // animate: false, // 禁用拖拽后的动画惯性，拖拽停则节点停
-      animationDuration: 0, // 动画时长设为0，进一步减少延迟
-      fit: true, // 保持画布适配节点
-      padding: 30 // 画布内边距，避免节点贴边
-    },
-    style: graphStylesheet,
-    zoomingEnabled: props.isInteractive,
-    userZoomingEnabled: props.isInteractive,
-    panningEnabled: props.isInteractive,
-    userPanningEnabled: props.isInteractive,
-    boxSelectionEnabled: props.isInteractive,
-    autoungrabify: !props.isInteractive,
-    autounselectify: !props.isInteractive,
+  const isRandomize = !isUpdate;
+  const layout = cyInstance.layout({
+    name:'fcose',
+    randomize : isRandomize,
+    fit:!isUpdate,
+    // 节点生成
+    animate: true,
+    animationDuration: 500,
+    // 物理参数
+    nodeRepulsion: layoutConfig.nodeRepulsion,
+    idealEdgeLength: layoutConfig.idealEdgeLength,
+    edgeElasticity: layoutConfig.idealEdgeLength,
+    gravity: layoutConfig.gravity,
+    // 
   })
-  if (props.isInteractive) {
-    cyInstance.on('tap', 'node', (event) => emit('node-click', event.target.data()));
-  }
 }
 const handleContainerClick = () => {
   if(!props.isInteractive){
     emit('graph-click');
   }
 }
-onMounted(initGraph);
+function fetchNewNodes(sourceId:string,curPos:Position):TransformedData{
+  const newRawGraphData:RawGraphData =  {
+"nodes": [
+{
+"id": "frontend_framework",
+"label": "前端框架",
+"wiki": "https://baike.baidu.com/item/前端框架"
+},
+{
+"id": "ui_framework",
+"label": "UI框架",
+"wiki": "https://baike.baidu.com/item/UI框架"
+},
+{
+"id": "mvvm_pattern",
+"label": "MVVM模式",
+"wiki": "https://baike.baidu.com/item/MVVM"
+},
+{
+"id": "data_binding",
+"label": "数据绑定",
+"wiki": "https://baike.baidu.com/item/数据绑定"
+},
+{
+"id": "component_development",
+"label": "组件化开发",
+"wiki": "https://baike.baidu.com/item/组件化开发"
+},
+{
+"id": "dom_manipulation",
+"label": "DOM操作",
+"wiki": "https://baike.baidu.com/item/DOM操作"
+},
+{
+"id": "state_management",
+"label": "状态管理",
+"wiki": "https://baike.baidu.com/item/状态管理"
+},
+{
+"id": "routing",
+"label": "路由",
+"wiki": "https://baike.baidu.com/item/路由"
+},
+{
+"id": "web_application",
+"label": "Web应用",
+"wiki": "https://baike.baidu.com/item/Web应用"
+},
+{
+"id": "development_efficiency",
+"label": "开发效率",
+"wiki": ""
+}
+],
+"edges": [
+{
+"source_id": "frontend_framework",
+"target_id": "ui_framework",
+"label": "包含类型"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "mvvm_pattern",
+"label": "常采用"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "data_binding",
+"label": "实现"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "component_development",
+"label": "支持"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "dom_manipulation",
+"label": "封装"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "state_management",
+"label": "提供"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "routing",
+"label": "集成"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "web_application",
+"label": "用于构建"
+},
+{
+"source_id": "frontend_framework",
+"target_id": "development_efficiency",
+"label": "提升"
+},
+{
+"source_id": "mvvm_pattern",
+"target_id": "data_binding",
+"label": "核心是"
+},
+{
+"source_id": "component_development",
+"target_id": "ui_framework",
+"label": "基于"
+},
+{
+"source_id": "state_management",
+"target_id": "data_binding",
+"label": "依赖"
+},
+{
+"source_id": "routing",
+"target_id": "web_application",
+"label": "应用于"
+}
+]
+}
+  const newGraphData:TransformedData = transformGraphData(newRawGraphData,curPos);
+  console.log(curPos,newGraphData.nodes[0]?.position);
+  return newGraphData;
+}
+const handleSaveAndExit = () => {
+  if(!cyInstance){
+    console.log('保存并退出失败，图谱容器不存在');
+    return;
+  }
+  const snapshot = cyInstance.png({
+    output: 'base64uri',
+    full: false,
+    scale: .5,
+    bg: '#ffffff'
+  });
+  const currentGraphData = cyInstance.json().elements;
+  const sessionData = {
+    id: 'topic-vue-js',
+    lastmodified: Date.now(),
+    nodeCount: cyInstance.nodes().length,
+    thumbnail: snapshot,
+    fullData: currentGraphData
+  }
+  localStorage.setItem('session_vue_js',JSON.stringify(sessionData));
+  router.push('/chat');
+}
+onMounted(() =>{
+  cyInstance = cytoscape({
+    container: cy.value,
+    elements:{
+      nodes: props.nodes,
+      edges: props.edges
+    },
+    style: graphStylesheet,
+  });
+  if(!cyInstance){
+    console.log('挂载时实例化图谱失败,GenerateGraph.vue');
+    return;
+  }
+  runLayout();
+  cyInstance.on(
+    'tap',
+    'node',
+    throttle((event)=>{
+    const isCtrlPressed = event.originalEvent.ctrlKey || event.originalEvent.metaKey;
+    if(isCtrlPressed && cyInstance){
+      const node = event.target;
+      const curPos = node.position();
+      console.log(`crtl+点击了${node.id()}`);
+      console.log('节流回调执行时间：', new Date().toLocaleTimeString(), '毫秒：', Date.now());
+      const newElements = fetchNewNodes(node.id(),curPos);
+      const addedElements = cyInstance.add(newElements);
+      // 动态添加
+      runLayout(true);
+    }
+    },2000),
+  )
+});
+let timer: number | null= null;
 watch(
-  ()=>[props.nodes,props.edges],
-  initGraph,
-  {deep:true}
+  layoutConfig,
+  ()=>{
+    if(timer){
+      clearTimeout(timer);
+    }
+    timer = setTimeout(()=>{
+      runLayout(true);
+    },300)
+  }
 )
 onUnmounted(() => cyInstance?.destroy());
 

@@ -64,7 +64,7 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
                 </div>
                 <div class="flex items-center gap-2 [grid-area:trailing] composer-trailing" style="transform: none; transform-origin: 50% 50% 0px;">
                   <div class="ms-auto flex items-center gap-1.5">
-                    <button id="composer-submit-button" data-testid="send-button" class="composer-submit-btn composer-submit-button-color h-9 w-9 rounded-3xl flex items-center justify-center">
+                    <button @click="handleSend" :disabled="props.disabled" data-testid="send-button" class="composer-submit-btn composer-submit-button-color h-9 w-9 rounded-3xl flex items-center justify-center">
                       <!-- send svg -->
                       <SendBtn></SendBtn>
                     </button>
@@ -86,7 +86,7 @@ h-[var(--composer-container-height,100%)] 会立刻变成 180px 高，
 
 import { onMounted,ref } from 'vue';
 // prosemirror
-import { EditorState } from 'prosemirror-state';
+import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { schema } from 'prosemirror-schema-basic';
 import { keymap } from 'prosemirror-keymap';
@@ -98,11 +98,19 @@ import 'prosemirror-view/style/prosemirror.css';
 import ToggleLLM from './icons/ToggleLLM.vue';
 import SendBtn from './icons/SendBtn.vue';
 
+const props = defineProps<{
+  disabled?:boolean;
+}>()
+const emit = defineEmits<{
+  (e:'send',data:string):void;
+}>()
+
+
 const innerRef = ref<HTMLElement>()
 const editorEL = ref<HTMLElement>()
 const composerRef = ref<HTMLElement>()
 const isScrolling = ref(false)
-let view:EditorView;
+let view:EditorView | null = null;
 
 const MAX_LINES = 14
 const LINE_HEIGHT = 28
@@ -113,8 +121,7 @@ let verticalPadding = 0
 const measurePadding = () => {
   if (!innerRef.value) return
   const styles = window.getComputedStyle(innerRef.value)
-  verticalPadding =
-    parseFloat(styles.paddingTop || '0') + parseFloat(styles.paddingBottom || '0')
+  verticalPadding = parseFloat(styles.paddingTop || '0') + parseFloat(styles.paddingBottom || '0')
 }
 
 const updateHeight = () => {
@@ -150,6 +157,28 @@ const focusEditor = () => {
   view?.focus()
 }
 
+const handleSend = () => {
+  if(!view){
+    console.warn('编辑器未初始化');
+    return;
+  }
+  const { state,state:{ schema } } = view;
+  const text = state.doc.textContent.trim();
+  if(!text || props.disabled){
+    console.log('文本为空或者不支持发送');
+    return;
+  }
+  emit('send',text);
+  const emptyParagraph = schema.nodes.paragraph?.createAndFill();
+  if(!emptyParagraph){
+    console.log('无法创建空段落');
+    return;
+  }
+  const tr = state.tr.replaceWith(0,state.doc.content.size,emptyParagraph);
+  tr.setSelection(TextSelection.atStart(tr.doc));
+  view.dispatch(tr);
+  view.focus();
+}
 onMounted(() => {
   const customKeymap = {
     'Mod-z':undo,
@@ -168,8 +197,10 @@ onMounted(() => {
       ]
     }),
     dispatchTransaction(tr) {
-      const newState = view.state.apply(tr)
-      view.updateState(newState)
+      if(view){
+        const newState = view.state.apply(tr)
+        view.updateState(newState)
+      }
       updateHeight();
     }
   })

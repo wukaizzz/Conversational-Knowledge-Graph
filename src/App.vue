@@ -2,6 +2,8 @@
 import ChatView from './views/ChatView.vue';
 import KGView from './knowledge_graph/KGView.vue';
 import { RouterLink, RouterView } from 'vue-router'
+import { useKgStore } from './stores/kgStore';
+const kgStore = useKgStore();
 </script>
 
 <template>
@@ -21,11 +23,35 @@ import { RouterLink, RouterView } from 'vue-router'
 
   <RouterView /> -->
   <div class="flex h-screen w-full">
-    <!-- <ChatView></ChatView> -->
-     <KGView></KGView>
+    <router-view name="main" class="w-full h-full" />
+    <div 
+      :class="[
+        'absolute inset-0 z-50 bg-white transition-transform duration-500 ease-in-out',
+        kgStore.isVisable 
+          ? 'translate-x-0'        // 显示：位置归位
+          : 'translate-x-full'     // 隐藏：移出屏幕右侧 (如果是左侧滑出用 -translate-x-full)
+      ]"
+    >
+      <Transition name="fade">
+      <KGView 
+        v-if="kgStore.isVisable" 
+        class="absolute inset-0 z-50 bg-white"
+        @close="kgStore.hideKG()"
+      />
+    </Transition>
+    </div>
   </div>
 </template>
-
+      <!-- :class="['transition-all duration-500 ease-in-out overflow-hidden',
+          kgStore.isVisable 
+          ? 'absolute inset-0 z-50 w-full h-full' 
+          : 'w-0 relative z-0 border-r delay-200'
+      ]", -->
 <style scoped>
-
+  .fade-enter-active, .fade-leave-active { 
+    transition: opacity 0.3s; 
+  }
+  .fade-enter-from, .fade-leave-to { 
+    opacity: 0; 
+  }
 </style>

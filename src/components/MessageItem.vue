@@ -6,7 +6,7 @@
         <div v-if="message.content" class="text-sm leading-relaxed whitespace-pre-wrap">
           {{ message.content }}
         </div>
-        <div v-if="message.type === 'graph' && message.graphData" class="mt-3">
+        <div v-if="message.type === 'graph' && message.graphData && !message.isResumeCard" class="mt-3">
           <div 
             class="relative w-[320px] h-[240px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50 hover:shadow-md transition-all cursor-pointer group"
             @click="handleGraphClick"
@@ -25,6 +25,17 @@
           </div>
           </div>
         </div>
+        <div v-if="message.type === 'graph' && message.isResumeCard">
+          <img 
+            :src="message.snapshotUrl" 
+            class="w-[320px] h-[240px] object-cover rounded-lg border border-gray-200"
+            alt="Graph snapshot"
+          />
+          <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white rounded-lg opacity-100 transition-opacity">
+          <h3 class="font-bold text-lg">继续图谱探索</h3>
+          <div class="mt-3 px-4 py-1 bg-blue-600 rounded-full text-xs">点击进入工作台</div>
+    </div>
+        </div>
         <div v-if="message.type === 'loading'" class="flex items-center space-x-1">
           <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
           <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-75"></div>
@@ -39,7 +50,8 @@
   import GenerateGraph from '@/knowledge_graph/GenerateGraph.vue';
   import type { ChatMessage } from '@/types/chat';
   import { computed } from 'vue';
-
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
   const props = defineProps<{
     message:ChatMessage
   }>();

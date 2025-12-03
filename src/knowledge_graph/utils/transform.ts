@@ -1,7 +1,7 @@
 // 工具函数，转换数据为cytoscape需要的数据
 import type { kgnode, kgedge, RawGraphData, KGNode, KGEdge, TransformedData } from '../types/kgData'
-
-export function transformGraphData(rawData:RawGraphData):TransformedData {
+import type { Position } from 'cytoscape';
+export function transformGraphData(rawData:RawGraphData,fatherPos?:Position):TransformedData {
   const transformedNodes:KGNode[] = rawData.nodes.map(rawNode=>{
     const cytoscapeData: kgnode & {id :string } = {
       ...rawNode,
@@ -11,6 +11,13 @@ export function transformGraphData(rawData:RawGraphData):TransformedData {
       data:cytoscapeData,
       id:rawNode.id,
       group: "nodes",
+      // 生成节点的位置
+      ...(fatherPos ? {
+        position: {
+          x: fatherPos.x + (Math.random() - 0.5) * 50,
+          y: fatherPos.y + (Math.random() - 0.5) * 50
+        }
+      } : {}),
     } as KGNode;
   });
   const transformedEdges: KGEdge[] = rawData.edges.map((rawEdge, index) => {
