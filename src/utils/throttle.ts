@@ -62,5 +62,36 @@ function throttle<T extends (...args: any[]) => any>(
 
   return throttled;
 }
-
+// function debounce(func,wait,immediate){
+//   let timeout
+//   return function(){
+//     let context = this;
+//     let args = arguments;
+//     if(timeout){
+//       clearTimeout(timeout);
+//     }
+//     if(immediate){
+//       let callnow = !timeout;
+//       timout = setTimeout(function(){
+//         timeout  = null
+//       },wait)
+//       if(callnow){
+//         func.apply(context,args)
+//       }
+//     }
+//     if(immediate){
+//       let callNow = !timeout;
+//       timeout = setTimeout(function(){
+//         timeout = null
+//       },wait)
+//       if(callNow)(
+//         func.apply(context,args)
+//       )
+//     }else{
+//       timeout = setTimeout(function(){
+//         func.apply(context,args)
+//       },wait)
+//     }
+//   }
+// }
 export default throttle;

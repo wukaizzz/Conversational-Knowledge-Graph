@@ -174,7 +174,7 @@
     setTimeout(()=>{
       // 保留符合条件的
       messages.value = messages.value.filter(m => m.id !== loadingId);
-      const transformed = transformGraphData(mockGraphData);
+      const transformed = transformGraphData(mockGraphData,true);
       messages.value.push({
         id:Date.now().toString(),
         role: 'assistant',

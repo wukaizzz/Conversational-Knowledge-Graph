@@ -217,7 +217,7 @@ function fetchNewNodes(sourceId:string,curPos:Position):TransformedData{
 }
 ]
 }
-  const newGraphData:TransformedData = transformGraphData(newRawGraphData,curPos);
+  const newGraphData:TransformedData = transformGraphData(newRawGraphData,true,curPos);
   console.log(curPos,newGraphData.nodes[0]?.position);
   return newGraphData;
 }
@@ -272,7 +272,7 @@ onMounted(() =>{
       // 动态添加
       runLayout(true);
     }
-    },2000),
+    },4000),
   )
 });
 let timer: number | null= null;

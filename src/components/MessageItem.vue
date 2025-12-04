@@ -51,7 +51,6 @@
   import type { ChatMessage } from '@/types/chat';
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
-  const router = useRouter();
   const props = defineProps<{
     message:ChatMessage
   }>();
