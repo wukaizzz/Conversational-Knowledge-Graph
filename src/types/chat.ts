@@ -1,8 +1,8 @@
 import type { TransformedData } from "@/knowledge_graph/types/kgData";
-
+type ChatRole = "user" | "assistant";
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: ChatRole;
   type: 'text' | 'graph' | 'loading';
   content?: string;
   graphData?: TransformedData;
@@ -10,3 +10,4 @@ export interface ChatMessage {
   snapshotUrl?:string;
   timestamp: number;
 }
+export type ChatSessions = Record<string, ChatMessage[]>;

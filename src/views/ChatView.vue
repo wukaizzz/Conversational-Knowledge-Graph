@@ -13,10 +13,14 @@
                 <div class="relative flex flex-col grow overflow-hidden basis-auto">
                   <div class="relative h-full">
                 <!-- full -->
-                    <ChatFull
-                      :messages="messages"
-                      @graph-select="handleGraphSelect"
-                    ></ChatFull>
+                    <RouterView v-slot="{Component}">
+                      <KeepAlive :include="['ChatFull']">
+                        <component 
+                        :is="Component"
+                        @graph-click="handleGraphSelect"
+                        />
+                      </KeepAlive>
+                    </RouterView>
                   </div>
                 </div>
                 <!-- weibu -->
@@ -43,11 +47,12 @@
   // 类型
   import type { ChatMessage } from '@/types/chat';
   import type { RawGraphData } from '@/knowledge_graph/types/kgData';
-  import { useRouter } from 'vue-router';
-  import { ref } from 'vue';
+  import { useRoute,useRouter } from 'vue-router';
+  import { ref, watch } from 'vue';
   import { transformGraphData } from '@/knowledge_graph/utils/transform';
   // pinia
   import { useKgStore } from '@/stores/kgStore';
+  const route = useRoute();
   const router = useRouter();
   const kgStore = useKgStore();
   const messages = ref<ChatMessage[]>([]);
@@ -191,6 +196,18 @@
     kgStore.showKG();
     // 
   }
+  watch(
+    ()=>route.params.sessionId,
+    async(newId)=>{
+      if(typeof newId === 'string' && newId.trim()){
+        console.log(`正在准备切换路由，跳转到${{ newId }}`);
+        await kgStore.loadSessionGraph(newId);
+      }else {
+        console.log('sessionId无效',newId);
+      }
+    },
+    { immediate:true}
+  )
 </script>
 
 <style scoped>

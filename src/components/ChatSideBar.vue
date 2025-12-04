@@ -62,7 +62,7 @@
               </div>
             </div>
           </div>
-          <div class=" group/sidebar-expando-section mb-[var(--sidebar-expanded-section-margin-bottom)">
+          <div class="group/sidebar-expando-section mb-[var(--sidebar-expanded-section-margin-bottom)">
             <div tabindex="0" class="group menu-item mx-[6px]" data-no-hover-bg="true" data-no-content-gap="true">
               <div class="flex w-full items-center justify-start gap-0.5"> 
                 <h2>你的聊天</h2>

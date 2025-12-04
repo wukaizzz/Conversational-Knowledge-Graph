@@ -23,7 +23,6 @@
 
 <script setup lang="ts" name="GenerateGraph">
   import { ref, onMounted, type Ref, onUnmounted, watch, reactive } from 'vue'
-
   import cytoscape, { type Core,type Position } from 'cytoscape'
 // 插件
 // 布局插件
@@ -45,8 +44,9 @@ const router = useRouter();
 // 数据转换
 import { transformGraphData } from './utils/transform';
 // 节流函数
-import throttle from '@/utils/throttle';
-
+import { throttle,debounce } from '@/utils/throttle';
+import { useKgStore } from '@/stores/kgStore';
+const kgStore = useKgStore();
 interface Props {
   nodes: KGNode[],
   edges: KGEdge[],
@@ -63,12 +63,6 @@ const cy = ref<HTMLDivElement | null>(null);
 let cyInstance: Core | null = null;
 const selectedNode: Ref<KGNode | null> = ref(null)
 
-const layoutConfig = reactive({
-  nodeRepulsion: 4500,
-  idealEdgeLength: 50,
-  edgeElasticity:0.45,
-  gravity:0.25,
-})
 const runLayout = ( isUpdate = false) => {
   if(!cyInstance){
     console.log('图谱容器不存在');
@@ -83,10 +77,11 @@ const runLayout = ( isUpdate = false) => {
     animate: true,
     animationDuration: 500,
     // 物理参数
-    nodeRepulsion: layoutConfig.nodeRepulsion,
-    idealEdgeLength: layoutConfig.idealEdgeLength,
-    edgeElasticity: layoutConfig.idealEdgeLength,
-    gravity: layoutConfig.gravity,
+    nodeRepulsion: kgStore.layoutConfig.nodeRepulsion,
+    idealEdgeLength: kgStore.layoutConfig.idealEdgeLength,
+    edgeElasticity: kgStore.layoutConfig.idealEdgeLength,
+    gravity: kgStore.layoutConfig.gravity,
+    numIter: kgStore.layoutConfig.numIter,
     // 
   })
 }
@@ -217,7 +212,7 @@ function fetchNewNodes(sourceId:string,curPos:Position):TransformedData{
 }
 ]
 }
-  const newGraphData:TransformedData = transformGraphData(newRawGraphData,true,curPos);
+  const newGraphData:TransformedData = transformGraphData(newRawGraphData,false,curPos);
   console.log(curPos,newGraphData.nodes[0]?.position);
   return newGraphData;
 }
@@ -241,8 +236,25 @@ const handleSaveAndExit = () => {
     fullData: currentGraphData
   }
   localStorage.setItem('session_vue_js',JSON.stringify(sessionData));
-  router.push('/chat');
 }
+const handleNodeClick = throttle((event:EventObject)=>{
+    const isCtrlPressed = event.originalEvent.ctrlKey || event.originalEvent.metaKey;
+    if(isCtrlPressed && cyInstance){
+      const node = event.target;
+      const curPos = node.position();
+      console.log(`crtl+点击了${node.id()}`);
+      console.log('节流回调执行时间：', new Date().toLocaleTimeString(), '毫秒：', Date.now());
+      const newElements = fetchNewNodes(node.id(),curPos);
+      const addedElements = cyInstance.add(newElements);
+      // 动态添加
+      runLayout(true);
+    }else{
+      console.log('没按ctrl或图谱容器不存在');
+    }
+},4000);
+const debounceRunLayout = debounce(()=>{
+  runLayout();
+},300)
 onMounted(() =>{
   cyInstance = cytoscape({
     container: cy.value,
@@ -260,35 +272,19 @@ onMounted(() =>{
   cyInstance.on(
     'tap',
     'node',
-    throttle((event)=>{
-    const isCtrlPressed = event.originalEvent.ctrlKey || event.originalEvent.metaKey;
-    if(isCtrlPressed && cyInstance){
-      const node = event.target;
-      const curPos = node.position();
-      console.log(`crtl+点击了${node.id()}`);
-      console.log('节流回调执行时间：', new Date().toLocaleTimeString(), '毫秒：', Date.now());
-      const newElements = fetchNewNodes(node.id(),curPos);
-      const addedElements = cyInstance.add(newElements);
-      // 动态添加
-      runLayout(true);
-    }
-    },4000),
-  )
-});
-let timer: number | null= null;
-watch(
-  layoutConfig,
+    handleNodeClick
+  );
+  watch(
+  ()=>kgStore.layoutConfig,
   ()=>{
-    if(timer){
-      clearTimeout(timer);
-    }
-    timer = setTimeout(()=>{
-      runLayout(true);
-    },300)
-  }
-)
+    debounceRunLayout();
+  },
+  {deep:true})
+});
 onUnmounted(() => cyInstance?.destroy());
-
+defineExpose({
+  handleSaveAndExit,
+})
 //   // =========================
 //   // 点击节点：显示右侧配置项
 //   // =========================

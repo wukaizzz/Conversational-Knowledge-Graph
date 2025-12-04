@@ -13,7 +13,7 @@
       v-bind="$attrs"
       :href="href"
       @click="navigate"
-      :class="isActive ? activeClass : inactiveClass"
+      :class="[isActive ? activeClass : inactiveClass]"  
       tabindex="0" class="group menu-item" draggable="true" data-discover="true"
     >
       <div class="flex min-w-0 grow items-center gap-2.5">

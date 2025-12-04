@@ -7,7 +7,7 @@
  * - trailing: 是否在节流结束后补充执行一次（默认 true）
  * @returns 节流后的函数 + cancel 取消方法
  */
-function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: any[]) => any>(
   fn: T,
   delay: number = 300,
   options: { leading?: boolean; trailing?: boolean } = {}
@@ -62,36 +62,45 @@ function throttle<T extends (...args: any[]) => any>(
 
   return throttled;
 }
-// function debounce(func,wait,immediate){
-//   let timeout
-//   return function(){
-//     let context = this;
-//     let args = arguments;
-//     if(timeout){
-//       clearTimeout(timeout);
-//     }
-//     if(immediate){
-//       let callnow = !timeout;
-//       timout = setTimeout(function(){
-//         timeout  = null
-//       },wait)
-//       if(callnow){
-//         func.apply(context,args)
-//       }
-//     }
-//     if(immediate){
-//       let callNow = !timeout;
-//       timeout = setTimeout(function(){
-//         timeout = null
-//       },wait)
-//       if(callNow)(
-//         func.apply(context,args)
-//       )
-//     }else{
-//       timeout = setTimeout(function(){
-//         func.apply(context,args)
-//       },wait)
-//     }
-//   }
-// }
-export default throttle;
+
+
+/**
+ * 防抖函数（浏览器环境TS版）
+ * @param func 要防抖的目标函数
+ * @param wait 防抖等待时间（毫秒）
+ * @param immediate 是否立即执行
+ * @returns 包装后的防抖函数（含cancel方法）
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number = 300,
+  immediate: boolean = false
+): T & { cancel: () => void } {
+  // 浏览器环境定时器ID为number类型
+  let timeout: number | null = null;
+
+  const debounced = function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+    const context = this;
+    if (timeout !== null) clearTimeout(timeout);
+
+    if (immediate) {
+      const callNow = !timeout;
+      timeout = window.setTimeout(() => { // 显式使用window.setTimeout
+        timeout = null;
+      }, wait);
+      if (callNow) func.apply(context, args);
+    } else {
+      timeout = window.setTimeout(() => {
+        func.apply(context, args);
+      }, wait);
+    }
+  } as T & { cancel: () => void };
+
+  debounced.cancel = function () {
+    if (timeout !== null) window.clearTimeout(timeout);
+    timeout = null;
+  };
+
+  return debounced;
+}
+

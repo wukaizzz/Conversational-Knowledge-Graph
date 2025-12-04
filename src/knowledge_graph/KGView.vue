@@ -77,26 +77,42 @@
               <div class="setting-group">
                 <!--  （节点排斥力） -->
                 <label for="nodeRepulsion">nodeRepulsion</label>
-                <input type="range" id="nodeRepulsion" min="1000" max="10000" value="4500" class="form-range">
-                <span class="value-display">4500</span>
+                <input type="range" id="nodeRepulsion" min="1000" max="10000" step="100" 
+                v-model.number="kgStore.layoutConfig.nodeRepulsion"
+                class="form-range">
+                <span class="value-display">{{ kgStore.layoutConfig.nodeRepulsion }}</span>
               </div>
               <div class="setting-group">
                 <!-- （理想边长度） -->
                 <label for="idealEdgeLength">idealEdgeLength</label>
-                <input type="range" id="idealEdgeLength" min="30" max="150" value="50" class="form-range">
-                <span class="value-display">50</span>
+                <input type="range" id="idealEdgeLength" min="30" max="150" 
+                v-model.numuber="kgStore.layoutConfig.idealEdgeLength"
+                class="form-range">
+                <span class="value-display">{{ kgStore.layoutConfig.idealEdgeLength }}</span>
               </div>
               <div class="setting-group">
                 <!-- （边弹性系数） -->
                 <label for="edgeElasticity">edgeElasticity</label>
-                <input type="range" id="edgeElasticity" min="0.1" max="1.0" value="0.45" step="0.01" class="form-range">
-                <span class="value-display">0.45</span>
+                <input type="range" id="edgeElasticity" min="0.1" max="1.0" 
+                v-model.numuber="kgStore.layoutConfig.edgeElasticity"
+                step="0.01" class="form-range">
+                <span class="value-display">{{ kgStore.layoutConfig.edgeElasticity }}</span>
               </div>
               <div class="setting-group">
                 <!-- （全局重力） -->
                 <label for="gravity">gravity</label>
-                <input type="range" id="gravity" min="0.05" max="1.0" value="0.25" step="0.01" class="form-range">
-                <span class="value-display">0.25</span>
+                <input type="range" id="gravity" min="0.05" max="1.0" 
+                v-model.number="kgStore.layoutConfig.gravity"
+                step="0.01" class="form-range">
+                <span class="value-display">{{ kgStore.layoutConfig.gravity }}</span>
+              </div>
+              <div class="setting-group">
+                <!-- （迭代轮数） -->
+                <label for="numIter">numIter</label>
+                <input type="range" id="numIter" min="0.05" max="1000" 
+                v-model.number="kgStore.layoutConfig.numIter"
+                step="10" class="form-range">
+                <span class="value-display">{{ kgStore.layoutConfig.numIter }}</span>
               </div>
             </div>
             <div class="mt-[15px]">
@@ -140,6 +156,7 @@
             :nodes="transformedGraphData.nodes"
             :edges="transformedGraphData.edges"
             :is-interactive="true"
+            ref="graphRef"
           ></GenerateGraph>
         </div>
       </div>
@@ -156,6 +173,7 @@
   import { transformGraphData } from './utils/transform';
   // 引入kg控制存储
   import { useKgStore } from '@/stores/kgStore';
+  // import { handleSaveAndExit } from './GenerateGraph.vue';
   const kgStore = useKgStore();
   const isStatsMenuHidden = ref(true);
   const isPhyscisSettginsMenuHidden = ref(true);
@@ -173,8 +191,14 @@
     // $('body').toggleClass('dark-mode');
     document.querySelector('body')?.classList.toggle('dark-mode');
   }
-  function gotoChat(){
+  const graphRef = ref<InstanceType<typeof GenerateGraph> | null>(null);
+  async function gotoChat(){
     kgStore.hideKG();
+    if(graphRef.value){
+      graphRef.value.handleSaveAndExit();
+    }else{
+      console.warn('图谱实例未加载，无法保存-KGView');
+    }
   }
   const myGraphData = ref({
       "nodes": [
@@ -280,6 +304,7 @@
   const transformedGraphData = computed(()=>{
     return transformGraphData(myGraphData.value);
   })
+
 </script>
 
 <style scoped>

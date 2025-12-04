@@ -7,7 +7,7 @@
     <div ref="containerRef" class="flex flex-col text-sm thread-xl:pt-(--header-height) pb-25">
       <!-- message -->
       <MessageItem
-        v-for="msg in messages"
+        v-for="msg in chatStore.currentMessages"
         :key="msg.id"
         :message="msg"
         @preview-click="onPreviewClick"        
@@ -21,9 +21,10 @@
   import type { ChatMessage } from '@/types/chat';
   import { ref,watch,nextTick } from 'vue';
   import MessageItem from './MessageItem.vue';
-  const props = defineProps<{
-    messages:ChatMessage[]
-  }>();
+  import { useRoute } from 'vue-router';
+  import { useChatStore } from '@/stores/chatStore';
+  const route = useRoute();
+  const chatStore = useChatStore();
   const emit = defineEmits<{
     (e:'graph-select',data:any):void;
   }>();
@@ -32,8 +33,19 @@
     emit('graph-select',data);
   }
   watch(
+    () => route.params.sessionId,
+    (newId)=>{
+      if(typeof newId === 'string'){
+        chatStore.loadChatMessages(newId);
+      }else{
+        console.log('路由参数不为字符串，chatFull');
+      }
+    }
+  ,{ immediate:true}
+  )
+  watch(
     () => {
-      return props.messages.length;
+      return chatStore.currentMessages.length;
     },
     () => {
       nextTick(()=>{
