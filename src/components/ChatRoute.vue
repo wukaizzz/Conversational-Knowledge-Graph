@@ -33,7 +33,6 @@
         </div>
         <div class="trailing text-[var(--text-tertiary)]" tabindex="-1"></div>
       </div>
-      <slot />
     </a>
    </RouterLink>
   </div>

@@ -71,7 +71,11 @@
             </div>
             <div id="history">
               <!-- route -->
-               <ChatRoute to="https://www.baidu.com">毛概</ChatRoute>
+               <ul>
+                  <li v-for="sessionId in chatStore.sessionIds" :key="sessionId">
+                    <ChatRoute :to="`/chat/${sessionId}`">{{ sessionId }}</ChatRoute>
+                  </li>
+               </ul>
             </div>
           </div>
           <div class="grow"></div>
@@ -112,6 +116,8 @@
   import DropDown from './icons/DropDown.vue';
   // ChatRoute
   import ChatRoute from './ChatRoute.vue';
+  import { useChatStore } from '@/stores/chatStore';
+  const chatStore = useChatStore();
 </script>
 
 <style scoped lang="css">

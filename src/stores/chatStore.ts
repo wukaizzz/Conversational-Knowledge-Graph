@@ -150,10 +150,11 @@ export const useChatStore = defineStore('chatMsgs',()=>{
   // Record语法糖
   // const messageCache = reactive<ChatSessions>({});
   const messageCache = DEFAULT_DATA as unknown as ChatSessions;//????
+  const sessionIds = Object.keys(messageCache);
   const currentSessionId = ref<string | null>(null);
   const isLoading = ref(false);
   // 通过计算属性，动态获得消息
-  const currentMessages = computed(()=>{
+  let currentMessages = computed(()=>{
     if(!currentSessionId.value){
       return [];
     }
@@ -183,6 +184,7 @@ export const useChatStore = defineStore('chatMsgs',()=>{
   }
   return {
     messageCache,
+    sessionIds,
     isLoading,
     currentSessionId,
     currentMessages,

@@ -52,9 +52,11 @@
   import { transformGraphData } from '@/knowledge_graph/utils/transform';
   // pinia
   import { useKgStore } from '@/stores/kgStore';
+  import { useChatStore } from '@/stores/chatStore';
   const route = useRoute();
   const router = useRouter();
   const kgStore = useKgStore();
+  const chatStore = useChatStore();
   const messages = ref<ChatMessage[]>([]);
   const isGenerating = ref(false);
   const mockGraphData:RawGraphData = {
@@ -159,7 +161,7 @@
     ]
   }
   const handleUserSend = async (text:string) => {
-    messages.value.push({
+    chatStore.currentMessages.push({
       id: Date.now().toString(),
       role: 'user',
       type: 'text',
@@ -169,7 +171,7 @@
     })
     isGenerating.value = true;
     const loadingId = 'loading-' + Date.now();
-    messages.value.push({
+    chatStore.currentMessages.push({
       id:loadingId,
       role: 'assistant',
       type: 'loading',
@@ -178,9 +180,14 @@
     })
     setTimeout(()=>{
       // 保留符合条件的
-      messages.value = messages.value.filter(m => m.id !== loadingId);
+      if(chatStore.currentSessionId){
+        const currentMessages = chatStore.messageCache[chatStore.currentSessionId] || []
+        chatStore.messageCache[chatStore.currentSessionId] = currentMessages.filter(m => m.id != loadingId);
+      }else{
+        console.log('sessionId不存在');
+      }
       const transformed = transformGraphData(mockGraphData,true);
-      messages.value.push({
+      chatStore.currentMessages.push({
         id:Date.now().toString(),
         role: 'assistant',
         type: 'graph',
