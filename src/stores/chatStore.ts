@@ -67,16 +67,16 @@ const DEFAULT_DATA = {
           {
             "group": "edges",
             "data": {
-              "source_id": "node_vite",
-              "target_id": "node_vue",
+              "source": "node_vite",
+              "target": "node_vue",
               "label": "构建工具"
             }
           },
           {
             "group": "edges",
             "data": {
-              "source_id": "node_pinia",
-              "target_id": "node_vue",
+              "source": "node_pinia",
+              "target": "node_vue",
               "label": "状态管理"
             }
           }
@@ -133,8 +133,8 @@ const DEFAULT_DATA = {
           {
             "group": "edges",
             "data": {
-              "source_id": "node_react",
-              "target_id": "node_fiber",
+              "source": "node_react",
+              "target": "node_fiber",
               "label": "核心架构"
             }
           }
@@ -161,6 +161,10 @@ export const useChatStore = defineStore('chatMsgs',()=>{
     return messageCache[currentSessionId.value] || [];
   })
   const loadChatMessages = async (sessionId:string)=>{
+    if(!sessionId){
+      console.log('sessionId传递错误');
+      return;
+    }
     currentSessionId.value = sessionId;
     if(messageCache[sessionId] && messageCache[sessionId].length > 0){
       console.log('命中缓存');

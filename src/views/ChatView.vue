@@ -15,21 +15,28 @@
                 <!-- full -->
                     <RouterView v-slot="{Component}">
                       <KeepAlive :include="['ChatFull']">
-                        <component 
-                        :is="Component"
-                        @graph-click="handleGraphSelect"
+                        <Transition name="fade" mode="out-in">                    <component 
+                          :is="Component"
+                          v-on="getComponentEvents(Component)"
                         />
+                        </Transition>
                       </KeepAlive>
                     </RouterView>
                   </div>
                 </div>
+                <!-- @graph-click="handleGraphSelect" -->
                 <!-- weibu -->
-                <div class="w-full flex-shrink-0">
-                  <ChatInput
-                    :disabled="isGenerating"
-                    @send="handleUserSend"
-                  ></ChatInput>
-                </div>
+                <Transition name="slide-up">
+                  <div 
+                    v-if="route.name !== 'ChatWelcome'"
+                    class="w-full flex-shrink-0 border-t bg-white z-20"
+                    >
+                    <ChatInput
+                      :disabled="isGenerating"
+                      @send="handleUserSend"
+                    ></ChatInput>
+                  </div>
+                </Transition>
               </div>
             </div>
           </main>
@@ -48,7 +55,7 @@
   import type { ChatMessage } from '@/types/chat';
   import type { RawGraphData } from '@/knowledge_graph/types/kgData';
   import { useRoute,useRouter } from 'vue-router';
-  import { ref, watch } from 'vue';
+  import { ref, Transition, watch, type VNode } from 'vue';
   import { transformGraphData } from '@/knowledge_graph/utils/transform';
   // pinia
   import { useKgStore } from '@/stores/kgStore';
@@ -57,7 +64,6 @@
   const router = useRouter();
   const kgStore = useKgStore();
   const chatStore = useChatStore();
-  const messages = ref<ChatMessage[]>([]);
   const isGenerating = ref(false);
   const mockGraphData:RawGraphData = {
     "nodes": [
@@ -160,7 +166,44 @@
         }
     ]
   }
+  //
+  const handleGraphSelect = (graphData:any) => {
+    kgStore.showKG();
+    // 
+  }
+  const handleStartChat = (content:string) => {
+    handleUserSend(content);
+  } 
+  const componentEventMap = {
+  ChatWelcome: { 'start-chat': handleStartChat },
+  ChatFull: { 'graph-select': handleGraphSelect },
+  // ChatDetail: { ... }
+  };
+  type ValidComponentName = keyof typeof componentEventMap;
+  const getComponentName = (componentVNode: VNode): ValidComponentName | null => {
+    const componentDef = componentVNode.type;
+    // 提取组件名并校验是否在合法列表中
+    let componentName: string | undefined = '';
+    if (typeof componentDef === 'object' && componentDef !== null) {
+      const def = componentDef as any;
+      componentName = def.name || def.__name;
+    }
+    // 类型守卫：确保返回的是合法组件名或 null
+    if (componentName && componentName in componentEventMap) {
+      return componentName as ValidComponentName;
+    }
+    return null;
+  };
+  const getComponentEvents = (componentVNode:VNode) =>{
+    const name = getComponentName(componentVNode);
+    if(name){
+      return componentEventMap[name];
+    }
+    return {};
+  }
+  
   const handleUserSend = async (text:string) => {
+    console.log(`${text}`);
     chatStore.currentMessages.push({
       id: Date.now().toString(),
       role: 'user',
@@ -199,18 +242,18 @@
       isGenerating.value = false;
     },1500)
   } 
-  const handleGraphSelect = (graphData:any) => {
-    kgStore.showKG();
-    // 
-  }
+ 
   watch(
     ()=>route.params.sessionId,
     async(newId)=>{
       if(typeof newId === 'string' && newId.trim()){
         console.log(`正在准备切换路由，跳转到${{ newId }}`);
         await kgStore.loadSessionGraph(newId);
+        // 确保每次路由切换都刷新聊天数据
+        await chatStore.loadChatMessages(newId);
       }else {
         console.log('sessionId无效',newId);
+        chatStore.currentSessionId = null;
       }
     },
     { immediate:true}
@@ -225,5 +268,24 @@
     --mask-fill: linear-gradient(180deg,#fff 0%,#fff);
     --mask-erase: linear-gradient(180deg,#000 0%,#000);
 }
+  /* 底部输入框滑入动画 */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
 
+/* 页面淡入淡出 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

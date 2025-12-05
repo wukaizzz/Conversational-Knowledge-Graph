@@ -23,18 +23,8 @@
 
 <script setup lang="ts" name="GenerateGraph">
   import { ref, onMounted, type Ref, onUnmounted, watch, reactive } from 'vue'
-  import cytoscape, { type Core,type Position } from 'cytoscape'
-// 插件
-// 布局插件
-import fcose from 'cytoscape-fcose'; // 导入 fcose
-import coseBilkent from 'cytoscape-cose-bilkent'; // 布局插件
-cytoscape.use(fcose);
-cytoscape.use(coseBilkent);
-// 交互插件
-import panzoom from 'cytoscape-panzoom'; // 平移缩放插件
-import contextMenus from 'cytoscape-context-menus';
-cytoscape.use(panzoom);
-cytoscape.use(contextMenus);
+  import  { type Core,type Position } from 'cytoscape'
+// 插件在配置文件中注册，避免多次执行插件的注册
 // types
 import type { RawGraphData,KGNode,KGEdge,TransformedData} from './types/kgData'
 import type { EventObject } from 'cytoscape';
@@ -60,7 +50,9 @@ const emit = defineEmits(['node-click','graph-click']);
 import { graphStylesheet } from './stylesheet/NodeSheet';
 
 const cy = ref<HTMLDivElement | null>(null);
-let cyInstance: Core | null = null;
+// 引入具体的实例
+import cytoscape from '@/knowledge_graph/utils/cytoscape-setup'
+let cyInstance:Core | null = null;
 const selectedNode: Ref<KGNode | null> = ref(null)
 
 const runLayout = ( isUpdate = false) => {

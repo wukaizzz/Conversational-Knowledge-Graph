@@ -48,6 +48,7 @@
 
 <script setup lang="ts" name="MessageItem">
   import GenerateGraph from '@/knowledge_graph/GenerateGraph.vue';
+  import type { TransformedData } from '@/knowledge_graph/types/kgData';
   import type { ChatMessage } from '@/types/chat';
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
@@ -55,7 +56,7 @@
     message:ChatMessage
   }>();
   const emit = defineEmits<{
-    (e: 'preview-click', data:any): void;
+    (e: 'preview-click',data:TransformedData): void;
   }>();
   const isUser = computed(()=>{
     return props.message.role === 'user'

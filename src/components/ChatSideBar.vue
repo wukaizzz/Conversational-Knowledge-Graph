@@ -9,7 +9,7 @@
           <div class="top-0 z-30 sticky">
             <div class="px-2">
               <div id="SideBarHeader" class="h-header-height flex items-center justify-between">
-                <a href="/" class="flex h-9 w-9 items-center justify-center rounded-lg focus:outline-none keyboard-focused:bg-token-surface-hover hover:bg-token-surface-hover text-token-text-primary no-draggable">
+                <a href="/chat" class="flex h-9 w-9 items-center justify-center rounded-lg focus:outline-none keyboard-focused:bg-token-surface-hover hover:bg-token-surface-hover text-token-text-primary no-draggable">
                   <TheMainIcon></TheMainIcon>
                 </a>
                 <div class="flex">
@@ -21,12 +21,12 @@
             </div>
           </div>
           <aside class="pt-[var(--sidebar-section-first-margin-top)] last:mb-5 tall:sticky tall:z-20 relative [--sticky-spacer:6px]">
-            <a href="/" class="group menu-item" tabindex="0">
+            <a href="/chat" class="group menu-item" tabindex="0">
               <div class="flex min-w-0 items-center gap-1.5">
                   <div class="flex items-center justify-center icon group-disabled:opacity-50">
                     <NewChat></NewChat>
                   </div>
-                  <div class="flex min-w-0 items-center gap-2.5 grow">
+                  <div class="flex min-w-0 items-center gap-2.5 grow text-token-text-primary">
                     <div class="truncate">新聊天</div>
                   </div>
               </div>
@@ -34,9 +34,9 @@
             <div tabindex="0" class="group menu-item">
               <div class="flex min-w-0 items-center gap-1.5">
                   <div class="flex items-center justify-center icon group-disabled:opacity-50">
-                    <FindChat></FindChat>
+                    <FindChat></FindChat> 
                   </div>
-                  <div class="flex min-w-0 items-center gap-2.5 grow">
+                  <div class="flex min-w-0 items-center gap-2.5 grow text-token-text-primary">
                     <div class="truncate">搜索聊天</div>
                   </div>
               </div>
@@ -46,7 +46,7 @@
                   <div class="flex items-center justify-center icon group-disabled:opacity-50">
                     <PictureBuckets></PictureBuckets>
                   </div>
-                  <div class="flex min-w-0 items-center gap-2.5 grow">
+                  <div class="flex min-w-0 items-center gap-2.5 grow text-token-text-primary">
                     <div class="truncate">图库</div>
                   </div>
               </div>
@@ -57,19 +57,24 @@
               <div class="flex items-center justify-center icon group-disabled:opacity-50">
                 <FilesCreate></FilesCreate>
               </div>
-              <div class="flex min-w-0 items-center gap-2.5 grow">
+              <div class="flex min-w-0 items-center gap-2.5 grow text-token-text-primary">
                 <div class="truncate">文件夹</div>
               </div>
             </div>
           </div>
           <div class="group/sidebar-expando-section mb-[var(--sidebar-expanded-section-margin-bottom)">
-            <div tabindex="0" class="group menu-item mx-[6px]" data-no-hover-bg="true" data-no-content-gap="true">
+            <div @click="toggleHistoryVisible" tabindex="0" class="group menu-item mx-[6px]" data-no-hover-bg="true" data-no-content-gap="true">
               <div class="flex w-full items-center justify-start gap-0.5"> 
-                <h2>你的聊天</h2>
-                <DropDown></DropDown>
+                <h2 class="mb-[0px]">你的聊天</h2>
+                <div
+                  class="transition-transform duration-300 ease-in-out origin-center"
+                  :class="historyVisable ? 'rotate-0' : '-rotate-90'" 
+                >
+                  <DropDown></DropDown>
+                </div>
               </div>
             </div>
-            <div id="history">
+            <div v-show="historyVisable" id="history">
               <!-- route -->
                <ul>
                   <li v-for="sessionId in chatStore.sessionIds" :key="sessionId">
@@ -117,7 +122,14 @@
   // ChatRoute
   import ChatRoute from './ChatRoute.vue';
   import { useChatStore } from '@/stores/chatStore';
+import { ref } from 'vue';
   const chatStore = useChatStore();
+const historyVisable = ref(true);
+
+const toggleHistoryVisible = async () => { 
+  historyVisable.value = !historyVisable.value;
+}
+
 </script>
 
 <style scoped lang="css">
@@ -139,6 +151,9 @@
   .menu-item:hover {
     background: var(--menu-item-highlighted);
   }
+.menu-item[data-no-hover-bg="true"]:hover {
+  background-color: inherit;
+}
   .menu-item:active {
     background: var(--menu-item-active);
   }

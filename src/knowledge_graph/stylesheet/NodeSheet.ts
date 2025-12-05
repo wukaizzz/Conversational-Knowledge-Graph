@@ -89,15 +89,6 @@ export const graphStylesheet: StylesheetStyle[] = [
       'line-style': 'dashed', // 虚线
     }
   },
-
-  // 6. 交互样式 (悬停、选中)
-  {
-    selector: 'node:hover',
-    style: {
-      'border-width': 4,
-      'border-color': '#E91E63'
-    }
-  },
   {
     selector: 'node:selected',
     style: {
