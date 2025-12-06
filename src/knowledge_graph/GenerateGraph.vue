@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts" name="GenerateGraph">
-  import { ref, onMounted, type Ref, onUnmounted, watch, reactive } from 'vue'
+  import { ref, onMounted, type Ref, onUnmounted, watch, reactive, onBeforeMount, onBeforeUnmount } from 'vue'
   import  { type Core,type Position } from 'cytoscape'
 // 插件在配置文件中注册，避免多次执行插件的注册
 // types
@@ -53,9 +53,11 @@ const cy = ref<HTMLDivElement | null>(null);
 // 引入具体的实例
 import cytoscape from '@/knowledge_graph/utils/cytoscape-setup'
 let cyInstance:Core | null = null;
+let resizeObserver:ResizeObserver | null = null;
 const selectedNode: Ref<KGNode | null> = ref(null)
 
 const runLayout = ( isUpdate = false) => {
+  console.log('正在执行重绘，当前斥力:', kgStore.layoutConfig.nodeRepulsion);
   if(!cyInstance){
     console.log('图谱容器不存在');
     return;
@@ -69,13 +71,17 @@ const runLayout = ( isUpdate = false) => {
     animate: true,
     animationDuration: 500,
     // 物理参数
-    nodeRepulsion: kgStore.layoutConfig.nodeRepulsion,
+    nodeRepulsion:  kgStore.layoutConfig.nodeRepulsion,
     idealEdgeLength: kgStore.layoutConfig.idealEdgeLength,
-    edgeElasticity: kgStore.layoutConfig.idealEdgeLength,
+    edgeElasticity: kgStore.layoutConfig.edgeElasticity,
+    // nodeRepulsion: node => kgStore.layoutConfig.nodeRepulsion,
+    // idealEdgeLength: edge => kgStore.layoutConfig.idealEdgeLength,
+    // edgeElasticity: edge => kgStore.layoutConfig.edgeElasticity,
     gravity: kgStore.layoutConfig.gravity,
     numIter: kgStore.layoutConfig.numIter,
-    // 
+    // 增量布局时的优化参数
   })
+  layout.run();
 }
 const handleContainerClick = () => {
   if(!props.isInteractive){
@@ -244,9 +250,25 @@ const handleNodeClick = throttle((event:EventObject)=>{
       console.log('没按ctrl或图谱容器不存在');
     }
 },4000);
-const debounceRunLayout = debounce(()=>{
-  runLayout();
-},300)
+const throttleRunLayout = throttle(()=>{
+  console.log('节流重绘布局触发了');
+  runLayout(true);
+},100,{ leading:true ,trailing:true});
+watch(
+  ()=>kgStore.layoutConfig,
+  (newVal,oldVal)=>{
+    console.log('监听到 kgStore.layoutConfig 变化:', newVal); // 👈 在这里加日志
+    throttleRunLayout();
+  },
+  {deep:true}
+)
+// 根据父容器控制图谱的大小
+const handleResize = ()=>{
+  if(cyInstance){
+    cyInstance.resize();
+    cyInstance.fit();
+  }
+}
 onMounted(() =>{
   cyInstance = cytoscape({
     container: cy.value,
@@ -266,14 +288,25 @@ onMounted(() =>{
     'node',
     handleNodeClick
   );
-  watch(
-  ()=>kgStore.layoutConfig,
-  ()=>{
-    debounceRunLayout();
-  },
-  {deep:true})
+  resizeObserver = new ResizeObserver(() => {
+    // 加个 requestAnimationFrame 防抖，避免报错 "Loop limit exceeded"
+    window.requestAnimationFrame(() => {
+      handleResize();
+    });
+  });
+  if(cy.value){
+    resizeObserver.observe(cy.value);
+  }
 });
-onUnmounted(() => cyInstance?.destroy());
+
+onBeforeUnmount(()=>{
+  if(resizeObserver){
+    resizeObserver.disconnect();
+  }
+  if(cyInstance){
+    cyInstance.destroy();
+  }
+})
 defineExpose({
   handleSaveAndExit,
 })

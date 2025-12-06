@@ -7,7 +7,7 @@ const DEFAULT_CONFIG = {
   idealEdgeLength: 50,
   edgeElasticity: 0.45,
   gravity: 0.25,
-  numIter:2500,
+  numIter:500,
 }
 export const useKgStore = defineStore('kg',()=>{
   const isVisable = ref(false);

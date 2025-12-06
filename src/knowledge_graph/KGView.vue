@@ -74,46 +74,56 @@
               <span> fCoSE </span>
             </div>
             <div id="fCoSE-settings" class="flex flex-wrap gap-[20px]">
-              <div class="setting-group">
-                <!--  （节点排斥力） -->
-                <label for="nodeRepulsion">nodeRepulsion</label>
-                <input type="range" id="nodeRepulsion" min="1000" max="10000" step="100" 
-                v-model.number="kgStore.layoutConfig.nodeRepulsion"
-                class="form-range">
-                <span class="value-display">{{ kgStore.layoutConfig.nodeRepulsion }}</span>
-              </div>
-              <div class="setting-group">
-                <!-- （理想边长度） -->
-                <label for="idealEdgeLength">idealEdgeLength</label>
-                <input type="range" id="idealEdgeLength" min="30" max="150" 
-                v-model.numuber="kgStore.layoutConfig.idealEdgeLength"
-                class="form-range">
-                <span class="value-display">{{ kgStore.layoutConfig.idealEdgeLength }}</span>
-              </div>
-              <div class="setting-group">
-                <!-- （边弹性系数） -->
-                <label for="edgeElasticity">edgeElasticity</label>
-                <input type="range" id="edgeElasticity" min="0.1" max="1.0" 
-                v-model.numuber="kgStore.layoutConfig.edgeElasticity"
-                step="0.01" class="form-range">
-                <span class="value-display">{{ kgStore.layoutConfig.edgeElasticity }}</span>
-              </div>
-              <div class="setting-group">
-                <!-- （全局重力） -->
-                <label for="gravity">gravity</label>
-                <input type="range" id="gravity" min="0.05" max="1.0" 
-                v-model.number="kgStore.layoutConfig.gravity"
-                step="0.01" class="form-range">
-                <span class="value-display">{{ kgStore.layoutConfig.gravity }}</span>
-              </div>
-              <div class="setting-group">
-                <!-- （迭代轮数） -->
-                <label for="numIter">numIter</label>
-                <input type="range" id="numIter" min="0.05" max="1000" 
-                v-model.number="kgStore.layoutConfig.numIter"
-                step="10" class="form-range">
-                <span class="value-display">{{ kgStore.layoutConfig.numIter }}</span>
-              </div>
+              <!-- 节点之间相互排斥的力度大小 -->
+              <NumberSlider
+              id="nodeRepulsion"
+              :modelValue="kgStore.layoutConfig.nodeRepulsion"
+              @update:modelValue="(newValue) => kgStore.layoutConfig.nodeRepulsion = newValue"
+              :min="1000"
+              :max="10000"
+              :step="1"
+              :updateNow="false"
+              ></NumberSlider>
+              <!-- （理想边长度） -->
+              <NumberSlider
+              id="idealEdgeLength"
+              v-model="kgStore.layoutConfig.idealEdgeLength"
+              :min="30"
+              :max="150"
+              :step="1"
+              :updateNow="true"
+              >
+              </NumberSlider>
+              <!-- （边弹性系数） -->
+              <NumberSlider
+              id="edgeElasticity"
+              v-model="kgStore.layoutConfig.edgeElasticity"
+              :min="0.1"
+              :max="1.0"
+              :step="0.01"
+              :updateNow="true"
+              >
+              </NumberSlider>
+              <!-- （全局重力） --> 
+              <NumberSlider
+              id="gravity"
+              v-model="kgStore.layoutConfig.gravity"
+              :min="0.05"
+              :max="1.0"
+              :step="0.01"
+              :updateNow="true"
+              >              
+              </NumberSlider>
+              <!-- （迭代轮数） -->
+              <NumberSlider
+              id="numIter"
+              v-model="kgStore.layoutConfig.numIter"
+              :min="200"
+              :max="1000"
+              :step="1"
+              :updateNow="true"
+              >
+              </NumberSlider>
             </div>
             <div class="mt-[15px]">
               <button class="btn btn-success mr-[6px] hover:bg-[#09693c]">apply Settings</button>
@@ -151,13 +161,15 @@
             <button class="btn btn-primary w-[9rem] flex-grow-0 flex-shrink-0">Reset Selection</button>
           </div>
         </div>
-        <div id="my-network" class="card-body">
-          <GenerateGraph
+        <div id="my-network" class="card-body flex-1 min-h-0 w-full h-full">
+          <div class="absolute inset-0 w-full h-hull">
+            <GenerateGraph
             :nodes="transformedGraphData.nodes"
             :edges="transformedGraphData.edges"
             :is-interactive="true"
             ref="graphRef"
-          ></GenerateGraph>
+            ></GenerateGraph>
+          </div>
         </div>
       </div>
     </div>
@@ -166,13 +178,15 @@
 </template>
 
 <script setup lang="ts" name="KGView">
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import './assets/main.css';
   import GenerateGraph from './GenerateGraph.vue';
+  import NumberSlider from './NumberSlider.vue';
   // 转换数据
   import { transformGraphData } from './utils/transform';
   // 引入kg控制存储
   import { useKgStore } from '@/stores/kgStore';
+import type { EventObject } from 'cytoscape';
   // import { handleSaveAndExit } from './GenerateGraph.vue';
   const kgStore = useKgStore();
   const isStatsMenuHidden = ref(true);
@@ -304,7 +318,6 @@
   const transformedGraphData = computed(()=>{
     return transformGraphData(myGraphData.value);
   })
-
 </script>
 
 <style scoped>
