@@ -164,11 +164,15 @@
         <div id="my-network" class="card-body flex-1 min-h-0 w-full h-full">
           <div class="absolute inset-0 w-full h-hull">
             <GenerateGraph
-            :nodes="transformedGraphData.nodes"
-            :edges="transformedGraphData.edges"
+            v-if="kgStore.currentGraphData.nodes.length > 0 "
+            :nodes="kgStore.currentGraphData.nodes"
+            :edges="kgStore.currentGraphData.edges"
             :is-interactive="true"
             ref="graphRef"
             ></GenerateGraph>
+            <div v-else class="flex items-center justify-center h-full text-gray-400">
+            请求中，请稍等。。。
+            </div>
           </div>
         </div>
       </div>
@@ -187,6 +191,7 @@
   // 引入kg控制存储
   import { useKgStore } from '@/stores/kgStore';
 import type { EventObject } from 'cytoscape';
+import type { RawGraphData } from './types/kgData';
   // import { handleSaveAndExit } from './GenerateGraph.vue';
   const kgStore = useKgStore();
   const isStatsMenuHidden = ref(true);
@@ -214,110 +219,12 @@ import type { EventObject } from 'cytoscape';
       console.warn('图谱实例未加载，无法保存-KGView');
     }
   }
-  const myGraphData = ref({
-      "nodes": [
-      {
-        "id": "vue_js",
-        "label": "Vue.js",
-        "wiki": "https://baike.baidu.com/item/Vue.js"
-      },
-      {
-        "id": "javascript",
-        "label": "JavaScript",
-        "wiki": "https://baike.baidu.com/item/JavaScript"
-      },
-      {
-        "id": "frontend_framework",
-        "label": "前端框架",
-        "wiki": "https://baike.baidu.com/item/前端框架"
-      },
-      {
-        "id": "evan_you",
-        "label": "尤雨溪",
-        "wiki": "https://baike.baidu.com/item/尤雨溪"
-      },
-      {
-        "id": "single_page_application",
-        "label": "单页应用",
-        "wiki": "https://baike.baidu.com/item/单页应用"
-      },
-      {
-        "id": "component",
-        "label": "组件",
-        "wiki": "https://baike.baidu.com/item/组件"
-      },
-      {
-        "id": "virtual_dom",
-        "label": "虚拟DOM",
-        "wiki": "https://baike.baidu.com/item/虚拟DOM"
-      },
-      {
-        "id": "react",
-        "label": "React",
-        "wiki": "https://baike.baidu.com/item/React"
-      },
-      {
-        "id": "angular",
-        "label": "Angular",
-        "wiki": "https://baike.baidu.com/item/Angular"
-      },
-      {
-        "id": "progressive_framework",
-        "label": "渐进式框架",
-        "wiki": "https://baike.baidu.com/item/渐进式框架"
-      }
-    ],
-      "edges": [
-        {
-          "source_id": "vue_js",
-          "target_id": "javascript",
-          "label": "基于"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "frontend_framework",
-          "label": "属于"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "evan_you",
-          "label": "由...创建"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "single_page_application",
-          "label": "适用于"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "component",
-          "label": "采用"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "virtual_dom",
-          "label": "使用"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "react",
-          "label": "类似"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "angular",
-          "label": "类似"
-        },
-        {
-          "source_id": "vue_js",
-          "target_id": "progressive_framework",
-          "label": "是"
-        }
-      ]
-  })
-  const transformedGraphData = computed(()=>{
-    return transformGraphData(myGraphData.value);
-  })
+  // const myGraphData = ref<RawGraphData>({
+      
+  // })
+  // const transformedGraphData = computed(()=>{
+  //   return transformGraphData(myGraphData.value);
+  // })
 </script>
 
 <style scoped>

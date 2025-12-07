@@ -74,9 +74,6 @@ const runLayout = ( isUpdate = false) => {
     nodeRepulsion:  kgStore.layoutConfig.nodeRepulsion,
     idealEdgeLength: kgStore.layoutConfig.idealEdgeLength,
     edgeElasticity: kgStore.layoutConfig.edgeElasticity,
-    // nodeRepulsion: node => kgStore.layoutConfig.nodeRepulsion,
-    // idealEdgeLength: edge => kgStore.layoutConfig.idealEdgeLength,
-    // edgeElasticity: edge => kgStore.layoutConfig.edgeElasticity,
     gravity: kgStore.layoutConfig.gravity,
     numIter: kgStore.layoutConfig.numIter,
     // 增量布局时的优化参数
@@ -257,7 +254,7 @@ const throttleRunLayout = throttle(()=>{
 watch(
   ()=>kgStore.layoutConfig,
   (newVal,oldVal)=>{
-    console.log('监听到 kgStore.layoutConfig 变化:', newVal); // 👈 在这里加日志
+    console.log('监听到 kgStore.layoutConfig 变化:', newVal);
     throttleRunLayout();
   },
   {deep:true}

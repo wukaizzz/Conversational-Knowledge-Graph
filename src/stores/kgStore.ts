@@ -1,3 +1,4 @@
+import type { KGEdge, KGNode, TransformedData } from "@/knowledge_graph/types/kgData";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 
@@ -16,8 +17,18 @@ export const useKgStore = defineStore('kg',()=>{
   const isLoading = ref(false);
   const currentSessionId = ref<string | null>(null);
   const layoutConfig = reactive({...DEFAULT_CONFIG});
-
-  const showKG = () =>{isVisable.value = true};
+  const currentGraphData = reactive<TransformedData>({
+    nodes:[],
+    edges:[]
+  })
+  // 点击跳转之后接收数据，图谱根据数据渲染
+  const showKG = (data:{nodes:KGNode[],edges:KGEdge[]}) =>{
+    currentGraphData.nodes = [];
+    currentGraphData.edges = [];
+    currentGraphData.nodes = data.nodes;
+    currentGraphData.edges = data.edges;
+    isVisable.value = true;
+  };
   const hideKG = () => {isVisable.value = false};
   const toggleFullScreen = ()=> {isFullScreen.value = !isFullScreen.value;}
   // 加载数据
@@ -65,10 +76,12 @@ export const useKgStore = defineStore('kg',()=>{
     isLoading,
     currentSessionId,
     layoutConfig,
+    DEFAULT_CONFIG,
+    currentGraphData,
     toggleFullScreen,
     loadSessionGraph,
     loadGraphNodes,
     saveConfigDB,
-    resetConfig
+    resetConfig,
   }
 })

@@ -167,16 +167,11 @@
     ]
   }
   //
-  const handleGraphSelect = (graphData:any) => {
-    kgStore.showKG();
-    // 
-  }
   const handleStartChat = (content:string) => {
     handleUserSend(content);
   } 
   const componentEventMap = {
   ChatWelcome: { 'start-chat': handleStartChat },
-  ChatFull: { 'graph-select': handleGraphSelect },
   // ChatDetail: { ... }
   };
   type ValidComponentName = keyof typeof componentEventMap;

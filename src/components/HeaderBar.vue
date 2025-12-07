@@ -31,15 +31,23 @@
 </template>
 
 <script setup lang="ts" name="HeaderBar">
-  import DropDown from './icons/DropDown.vue';
+  import { useChatStore } from '@/stores/chatStore';
+import DropDown from './icons/DropDown.vue';
   import Github from './icons/Github.vue';
   import { useKgStore } from '@/stores/kgStore';
   import { useRoute } from 'vue-router';
   const route = useRoute();
   const kgStore = useKgStore();
+  const chatStore = useChatStore();
   function gotoKG(){
-    kgStore.showKG()
-;  }
+    const graphData = chatStore.latestGraphData;
+    if(graphData){
+      kgStore.showKG(graphData);
+    }else{
+      alert('当前对话暂未生成知识图谱');
+      // ElMessage.warning('当前对话暂未生成知识图谱');
+    }
+  };
 </script>
 
 <style scoped lang="css">

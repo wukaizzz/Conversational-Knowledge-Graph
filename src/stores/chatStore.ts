@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
-import type { ChatMessage,ChatSessions } from "@/types/chat";
+import type { ChatMessage } from "@/types/chat";
+import type { TransformedData } from "@/knowledge_graph/types/kgData";
+import { generateGraphSnapshot } from "@/knowledge_graph/utils/graphSnapshot";
 // import fetchMessagesMap
 
 const DEFAULT_DATA = {
@@ -106,37 +108,116 @@ const DEFAULT_DATA = {
   ],
   "session_004": [
     {
+      "id": "msg_003_1",
+      "role": "user",
+      "type": "text",
+      "content": "分析一下 React 和 Angular 的区别",
+      "isResumeCard": false,
+      "timestamp": 1709600040000
+    },
+    {
       "id": "msg_004_1",
       "role": "assistant",
       "type": "graph",
-      "content": "这是您上次查看的 React 架构图保存结果。",
+      "content": "这是您上次查看的 vue生态 架构图保存结果。",
       "graphData": {
         "nodes": [
           {
-            "group": "nodes",
-            "data": {
-              "id": "node_react",
-              "label": "React",
-              "wiki": "https://react.dev"
-            }
+            "id": "vue_js",
+            "label": "Vue.js",
+            "wiki": "https://baike.baidu.com/item/Vue.js"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "node_fiber",
-              "label": "React Fiber",
-              "wiki": "https://github.com/acdlite/react-fiber-architecture"
-            }
+            "id": "javascript",
+            "label": "JavaScript",
+            "wiki": "https://baike.baidu.com/item/JavaScript"
+          },
+          {
+            "id": "frontend_framework",
+            "label": "前端框架",
+            "wiki": "https://baike.baidu.com/item/前端框架"
+          },
+          {
+            "id": "evan_you",
+            "label": "尤雨溪",
+            "wiki": "https://baike.baidu.com/item/尤雨溪"
+          },
+          {
+            "id": "single_page_application",
+            "label": "单页应用",
+            "wiki": "https://baike.baidu.com/item/单页应用"
+          },
+          {
+            "id": "component",
+            "label": "组件",
+            "wiki": "https://baike.baidu.com/item/组件"
+          },
+          {
+            "id": "virtual_dom",
+            "label": "虚拟DOM",
+            "wiki": "https://baike.baidu.com/item/虚拟DOM"
+          },
+          {
+            "id": "react",
+            "label": "React",
+            "wiki": "https://baike.baidu.com/item/React"
+          },
+          {
+            "id": "angular",
+            "label": "Angular",
+            "wiki": "https://baike.baidu.com/item/Angular"
+          },
+          {
+            "id": "progressive_framework",
+            "label": "渐进式框架",
+            "wiki": "https://baike.baidu.com/item/渐进式框架"
           }
         ],
         "edges": [
           {
-            "group": "edges",
-            "data": {
-              "source": "node_react",
-              "target": "node_fiber",
-              "label": "核心架构"
-            }
+            "source": "vue_js",
+            "target": "javascript",
+            "label": "基于"
+          },
+          {
+            "source": "vue_js",
+            "target": "frontend_framework",
+            "label": "属于"
+          },
+          {
+            "source": "vue_js",
+            "target": "evan_you",
+            "label": "由...创建"
+          },
+          {
+            "source": "vue_js",
+            "target": "single_page_application",
+            "label": "适用于"
+          },
+          {
+            "source": "vue_js",
+            "target": "component",
+            "label": "采用"
+          },
+          {
+            "source": "vue_js",
+            "target": "virtual_dom",
+            "label": "使用"
+          },
+          {
+            "source": "vue_js",
+            "target": "react",
+            "label": "类似"
+          },
+          {
+            "source": "vue_js",
+            "target": "angular",
+            "label": "类似"
+          },
+          {
+            "source": "vue_js",
+            "target": "progressive_framework",
+            "label": "是"
           }
         ]
       },
@@ -146,6 +227,7 @@ const DEFAULT_DATA = {
     }
   ]
 }
+type ChatSessions = Record<string, ChatMessage[]>;
 export const useChatStore = defineStore('chatMsgs',()=>{
   // Record语法糖
   // const messageCache = reactive<ChatSessions>({});
@@ -153,7 +235,7 @@ export const useChatStore = defineStore('chatMsgs',()=>{
   const sessionIds = Object.keys(messageCache);
   const currentSessionId = ref<string | null>(null);
   const isLoading = ref(false);
-  // 通过计算属性，动态获得消息
+  // 通过计算属性，动态获得消息列表
   let currentMessages = computed(()=>{
     if(!currentSessionId.value){
       return [];
@@ -186,12 +268,49 @@ export const useChatStore = defineStore('chatMsgs',()=>{
     }
     messageCache[sessionId].push(message);
   }
+  const addAssistantMessage = async (graphData:TransformedData)=>{
+    const newMessage:ChatMessage = {
+      id:Date.now().toString(),
+      role:'assistant',
+      type:'graph',
+      content:'图谱生成完毕',
+      graphData:graphData,
+      isResumeCard: true,
+      snapshotUrl:'',
+      timestamp:Date.now()
+    }
+    if(currentSessionId.value){
+      const sessionId = currentSessionId.value;
+      if(!messageCache[sessionId]){
+        messageCache[sessionId] = [];
+      }
+      messageCache[sessionId].push(newMessage);
+    }
+    try {
+      const snapshot = await generateGraphSnapshot(graphData.nodes,graphData.edges);
+      newMessage.snapshotUrl = snapshot;
+    }catch(error){
+      console.log('生成快照失败',error);
+    }
+  }
+  // 对话中最新的图谱数据
+  const latestGraphData = computed(() => {
+    const msgs = currentMessages.value;
+    for(let i = msgs.length - 1;i >= 0;i--){
+      const msg = msgs[i];
+      if(msg?.type === 'graph' && msg.graphData){
+        return msg.graphData;
+      }
+    }
+    return null;
+  })
   return {
     messageCache,
     sessionIds,
     isLoading,
     currentSessionId,
     currentMessages,
+    latestGraphData,
     loadChatMessages,
     addMessage
   }

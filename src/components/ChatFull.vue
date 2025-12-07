@@ -10,7 +10,6 @@
         v-for="msg in chatStore.currentMessages"
         :key="msg.id"
         :message="msg"
-        @preview-click="onPreviewClick"        
       >
       </MessageItem>
     </div>
@@ -25,13 +24,7 @@
   import type { TransformedData } from '@/knowledge_graph/types/kgData';
   const route = useRoute();
   const chatStore = useChatStore();
-  const emit = defineEmits<{
-    (e:'graph-select',data:any):void;
-  }>();
   const containerRef = ref<HTMLElement | null>(null); 
-  const onPreviewClick = (data:TransformedData)=>{
-    emit('graph-select',data);
-  }
   const initData = async () =>{
     const sessionId = route.params.sessionId;
     if(!sessionId){

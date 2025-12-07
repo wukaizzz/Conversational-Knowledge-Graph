@@ -11,16 +11,21 @@
             class="relative w-[320px] h-[240px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50 hover:shadow-md transition-all cursor-pointer group"
             @click="handleGraphClick"
           >            
-            <GenerateGraph
+            <img 
+            :src="message.snapshotUrl" 
+            alt="Knowledge Graph snapshot"
+            class="rounded-lg border shadow-sm w-full h-48 object-cover object-center"
+            >
+            <!-- <GenerateGraph
               :nodes="message.graphData.nodes"
               :edges="message.graphData.edges"
               :is-interactive="false"
               class="w-full h-full pointer-events-none"
             >
-            </GenerateGraph>
+            </GenerateGraph> -->
             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
             <span class="opacity-0 group-hover:opacity-100 bg-white/90 text-xs px-2 py-1 rounded text-gray-600 font-medium transition-opacity">
-              点击进入全屏查看
+              点击查看全屏图谱
             </span>
           </div>
           </div>
@@ -49,21 +54,21 @@
 <script setup lang="ts" name="MessageItem">
   import GenerateGraph from '@/knowledge_graph/GenerateGraph.vue';
   import type { TransformedData } from '@/knowledge_graph/types/kgData';
+import { useKgStore } from '@/stores/kgStore';
   import type { ChatMessage } from '@/types/chat';
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
   const props = defineProps<{
     message:ChatMessage
   }>();
-  const emit = defineEmits<{
-    (e: 'preview-click',data:TransformedData): void;
-  }>();
   const isUser = computed(()=>{
     return props.message.role === 'user'
   })
+  const kgStore = useKgStore();
   const handleGraphClick = ()=>{
-    if(props.message.graphData){
-      emit('preview-click',props.message.graphData);
+    const {type,graphData} = props.message;
+    if(type === 'graph' && graphData){
+      kgStore.showKG(graphData);
     }
   }
 </script>

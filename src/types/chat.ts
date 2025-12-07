@@ -10,4 +10,3 @@ export interface ChatMessage {
   snapshotUrl?:string;
   timestamp: number;
 }
-export type ChatSessions = Record<string, ChatMessage[]>;
