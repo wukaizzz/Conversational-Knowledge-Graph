@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
 import type { ChatMessage } from "@/types/chat";
-import type { TransformedData } from "@/knowledge_graph/types/kgData";
+import type { RawGraphData, TransformedData } from "@/knowledge_graph/types/kgData";
 import { generateGraphSnapshot } from "@/knowledge_graph/utils/graphSnapshot";
+import { transformGraphData } from "@/knowledge_graph/utils/transform";
 // import fetchMessagesMap
 
 const DEFAULT_DATA:ChatSessions = {
@@ -41,46 +42,35 @@ const DEFAULT_DATA:ChatSessions = {
       "graphData": {
         "nodes": [
           {
-            "group": "nodes",
-            "data": {
               "id": "node_vue",
               "label": "Vue.js",
               "wiki": "https://en.wikipedia.org/wiki/Vue.js"
-            }
           },
           {
-            "group": "nodes",
-            "data": {
               "id": "node_vite",
               "label": "Vite",
               "wiki": "https://en.wikipedia.org/wiki/Vite_(software)"
-            }
+            
           },
           {
-            "group": "nodes",
-            "data": {
               "id": "node_pinia",
               "label": "Pinia",
               "wiki": "https://pinia.vuejs.org/"
-            }
+            
           }
         ],
         "edges": [
           {
-            "group": "edges",
-            "data": {
               "source": "node_vite",
               "target": "node_vue",
               "label": "构建工具"
-            }
+            
           },
           {
-            "group": "edges",
-            "data": {
               "source": "node_pinia",
               "target": "node_vue",
               "label": "状态管理"
-            }
+            
           }
         ]
       },
@@ -123,158 +113,101 @@ const DEFAULT_DATA:ChatSessions = {
       "graphData": {
         "nodes": [
           {
-            "group": "nodes",
-            "data": {
-              "id": "vue_js",
-              "label": "Vue.js",
-              "wiki": "https://baike.baidu.com/item/Vue.js"
-            }
+            "id": "vue_js",
+            "label": "Vue.js",
+            "wiki": "https://baike.baidu.com/item/Vue.js"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "javascript",
-              "label": "JavaScript",
-              "wiki": "https://baike.baidu.com/item/JavaScript"
-            }
+            "id": "javascript",
+            "label": "JavaScript",
+            "wiki": "https://baike.baidu.com/item/JavaScript"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "frontend_framework",
-              "label": "前端框架",
-              "wiki": "https://baike.baidu.com/item/前端框架"
-            }
+            "id": "frontend_framework",
+            "label": "前端框架",
+            "wiki": "https://baike.baidu.com/item/前端框架"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "evan_you",
-              "label": "尤雨溪",
-              "wiki": "https://baike.baidu.com/item/尤雨溪"
-            }
+            "id": "evan_you",
+            "label": "尤雨溪",
+            "wiki": "https://baike.baidu.com/item/尤雨溪"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "single_page_application",
-              "label": "单页应用",
-              "wiki": "https://baike.baidu.com/item/单页应用"
-            }
+            "id": "single_page_application",
+            "label": "单页应用",
+            "wiki": "https://baike.baidu.com/item/单页应用"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "component",
-              "label": "组件",
-              "wiki": "https://baike.baidu.com/item/组件"
-            }
+            "id": "component",
+            "label": "组件",
+            "wiki": "https://baike.baidu.com/item/组件"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "virtual_dom",
-              "label": "虚拟DOM",
-              "wiki": "https://baike.baidu.com/item/虚拟DOM"
-            }
+            "id": "virtual_dom",
+            "label": "虚拟DOM",
+            "wiki": "https://baike.baidu.com/item/虚拟DOM"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "react",
-              "label": "React",
-              "wiki": "https://baike.baidu.com/item/React"
-            }
+            "id": "react",
+            "label": "React",
+            "wiki": "https://baike.baidu.com/item/React"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "angular",
-              "label": "Angular",
-              "wiki": "https://baike.baidu.com/item/Angular"
-            }
+            "id": "angular",
+            "label": "Angular",
+            "wiki": "https://baike.baidu.com/item/Angular"
           },
           {
-            "group": "nodes",
-            "data": {
-              "id": "progressive_framework",
-              "label": "渐进式框架",
-              "wiki": "https://baike.baidu.com/item/渐进式框架"
-            }
+            "id": "progressive_framework",
+            "label": "渐进式框架",
+            "wiki": "https://baike.baidu.com/item/渐进式框架"
           }
         ],
         "edges": [
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "javascript",
-              "label": "基于"
-            }
+            "source": "vue_js",
+            "target": "javascript",
+            "label": "基于"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "frontend_framework",
-              "label": "属于"
-            }
+            "source": "vue_js",
+            "target": "frontend_framework",
+            "label": "属于"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "evan_you",
-              "label": "由...创建"
-            }
+            "source": "vue_js",
+            "target": "evan_you",
+            "label": "由...创建"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "single_page_application",
-              "label": "适用于"
-            }
+            "source": "vue_js",
+            "target": "single_page_application",
+            "label": "适用于"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "component",
-              "label": "采用"
-            }
+            "source": "vue_js",
+            "target": "component",
+            "label": "采用"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "virtual_dom",
-              "label": "使用"
-            }
+            "source": "vue_js",
+            "target": "virtual_dom",
+            "label": "使用"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "react",
-              "label": "类似"
-            }
+            "source": "vue_js",
+            "target": "react",
+            "label": "类似"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "angular",
-              "label": "类似"
-            }
+            "source": "vue_js",
+            "target": "angular",
+            "label": "类似"
           },
           {
-            "group": "edges",
-            "data": {
-              "source": "vue_js",
-              "target": "progressive_framework",
-              "label": "是"
-            }
+            "source": "vue_js",
+            "target": "progressive_framework",
+            "label": "是"
           }
         ]
       },
@@ -369,7 +302,7 @@ export const useChatStore = defineStore('chatMsgs',()=>{
       messageCache[sessionId] = messageCache[sessionId].filter((m)=>m.id !== msgId);
     }
   }
-  const addAssistantMessage = async (content:string,graphData:TransformedData)=>{
+  const addAssistantMessage = async (content:string,graphData:RawGraphData)=>{
     if(!currentSessionId.value){
       console.log('currentSessionId无效');
       return;
@@ -391,7 +324,8 @@ export const useChatStore = defineStore('chatMsgs',()=>{
     messageCache[sessionId].push(newMessage);
     
     try {
-      const snapshot = await generateGraphSnapshot(graphData.nodes,graphData.edges);
+      const transformedData = transformGraphData(graphData,true)
+      const snapshot = await generateGraphSnapshot(transformedData.nodes,transformedData.edges);
       newMessage.snapshotUrl = snapshot;
       console.log('快照生成成功');
     }catch(error){

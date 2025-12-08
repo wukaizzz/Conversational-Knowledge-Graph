@@ -4,14 +4,14 @@
         <!-- <div class="box hover:bg-token-surface-hover">111</div>
         <div class="box">111</div> -->
         <ChatSideBar></ChatSideBar>
-        <div class="relative flex h-full min-w-0 flex-1 flex-col">
+        <div class="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden">
           <main class="relative h-full w-full flex-1 overflow-hidden" id="main" z-index="-1">
             <div id="thread" class="group h-full w-full">
-              <div class="composer-parent flex flex-col focus-visible:outline-0 h-full">
+              <div class="composer-parent flex flex-col focus-visible:outline-0 h-full overflow-hidden">
                 <!-- toubu -->
                   <!-- <HeaderBar></HeaderBar> -->
                 <div class="relative flex flex-col grow overflow-hidden basis-auto">
-                  <div class="relative h-full">
+                  <div class="relative flex-1 min-h-0 overflow-hidden">
                 <!-- full -->
                     <RouterView v-slot="{Component}">
                       <KeepAlive :include="['ChatFull']">
@@ -29,7 +29,7 @@
                 <Transition name="slide-up">
                   <div 
                     v-if="route.name !== 'ChatWelcome'"
-                    class="w-full flex-shrink-0 border-t bg-white z-20"
+                    class="w-full flex-shrink-0 bg-token-main-surface-primary z-20"
                     >
                     <ChatInput
                       :disabled="isGenerating"
@@ -203,10 +203,10 @@
     const loadingId = chatStore.addLoadingMessage();
     setTimeout(async ()=>{
       chatStore.removeMessage(loadingId);
-      const data = transformGraphData(mockGraphData,true);
+      // const data = transformGraphData(mockGraphData,true);
       await chatStore.addAssistantMessage(
         '这是为您生成的图谱',
-        data
+        mockGraphData
       )
       isGenerating.value = false;
     },1500)

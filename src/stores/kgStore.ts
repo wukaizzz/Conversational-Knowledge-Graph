@@ -1,7 +1,7 @@
-import type { KGEdge, KGNode, TransformedData } from "@/knowledge_graph/types/kgData";
+import type { RawGraphData,TransformedData } from "@/knowledge_graph/types/kgData";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
-
+import { transformGraphData } from "@/knowledge_graph/utils/transform";
 // 默认物理参数
 const DEFAULT_CONFIG = {
   nodeRepulsion: 4500,
@@ -22,11 +22,12 @@ export const useKgStore = defineStore('kg',()=>{
     edges:[]
   })
   // 点击跳转之后接收数据，图谱根据数据渲染
-  const showKG = (data:{nodes:KGNode[],edges:KGEdge[]}) =>{
+  const showKG = (data:RawGraphData) =>{
     currentGraphData.nodes = [];
     currentGraphData.edges = [];
-    currentGraphData.nodes = data.nodes;
-    currentGraphData.edges = data.edges;
+    const transformedData = transformGraphData(data,true);
+    currentGraphData.nodes = transformedData.nodes;
+    currentGraphData.edges = transformedData.edges;
     isVisable.value = true;
   };
   const hideKG = () => {isVisable.value = false};

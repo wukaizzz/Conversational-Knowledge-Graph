@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="['flex w-full',isUser ? 'justify-end': 'justify-start']">
+    <div :class="['flex w-full mb-[20px]',isUser ? 'justify-end': 'justify-start']">
       <div v-if="!isUser" :class="['w-8 h-8 rounded-full bg-blue-500 mr-3 flex-shrink-0']">您的图谱展示如下</div>
       <div :class="['max-w-[80%] rounded-xl p-4 shadow-sm', isUser ? 'bg-blue-600 text-white' :'bg-white border border-gray-200 text-gray-800']">
         <div v-if="message.content" class="text-sm leading-relaxed whitespace-pre-wrap">

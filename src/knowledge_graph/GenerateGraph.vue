@@ -23,7 +23,7 @@
 
 <script setup lang="ts" name="GenerateGraph">
   import { ref, onMounted, type Ref, onUnmounted, watch, reactive, onBeforeMount, onBeforeUnmount } from 'vue'
-  import  { type Core,type Position } from 'cytoscape'
+  import  { type Core,type Position} from 'cytoscape'
 // 插件在配置文件中注册，避免多次执行插件的注册
 // types
 import type { RawGraphData,KGNode,KGEdge,TransformedData} from './types/kgData'
@@ -40,14 +40,16 @@ const kgStore = useKgStore();
 interface Props {
   nodes: KGNode[],
   edges: KGEdge[],
-  isInteractive?:boolean
+  isInteractive?:boolean,
+  isLabelHidden?:boolean,
 }
 const props = withDefaults(defineProps<Props>(),{
   isInteractive:true,
+  isLabelHidden:false
 })
 const emit = defineEmits(['node-click','graph-click']);
 // 样式
-import { graphStylesheet } from './stylesheet/NodeSheet';
+import { graphStylesheet} from './stylesheet/NodeSheet';
 
 const cy = ref<HTMLDivElement | null>(null);
 // 引入具体的实例
@@ -232,6 +234,20 @@ const handleSaveAndExit = () => {
   }
   localStorage.setItem('session_vue_js',JSON.stringify(sessionData));
 }
+const handleLabelsHide = () => {
+  if(!cyInstance){
+    return;
+  }
+  const instance = cyInstance;
+  instance.batch(()=>{
+    const nodes = instance.nodes();
+    if(props.isLabelHidden){
+      nodes.addClass('hide-labels');
+    }else{
+      nodes.removeClass('hide-labels');
+    }
+  })
+}
 const handleNodeClick = throttle((event:EventObject)=>{
     const isCtrlPressed = event.originalEvent.ctrlKey || event.originalEvent.metaKey;
     if(isCtrlPressed && cyInstance){
@@ -247,10 +263,12 @@ const handleNodeClick = throttle((event:EventObject)=>{
       console.log('没按ctrl或图谱容器不存在');
     }
 },4000);
+// 布局节流
 const throttleRunLayout = throttle(()=>{
   console.log('节流重绘布局触发了');
   runLayout(true);
 },100,{ leading:true ,trailing:true});
+// 监听配置
 watch(
   ()=>kgStore.layoutConfig,
   (newVal,oldVal)=>{
@@ -259,13 +277,23 @@ watch(
   },
   {deep:true}
 )
-// 根据父容器控制图谱的大小
-const handleResize = ()=>{
+
+watch(
+  ()=>props.isLabelHidden,
+  ()=>{
+    handleLabelsHide();
+  },
+)
+
+const debounceHandResize = debounce(()=>{
+  console.log('缩放');
   if(cyInstance){
     cyInstance.resize();
     cyInstance.fit();
   }
-}
+},0);
+// 节点经过的定时器
+let hoverTimer:number | null = null;
 onMounted(() =>{
   cyInstance = cytoscape({
     container: cy.value,
@@ -280,20 +308,47 @@ onMounted(() =>{
     return;
   }
   runLayout();
+  // ctrl+点击拓展节点
   cyInstance.on(
     'tap',
     'node',
     handleNodeClick
   );
+  // 图谱跟随浏览器缩放
   resizeObserver = new ResizeObserver(() => {
-    // 加个 requestAnimationFrame 防抖，避免报错 "Loop limit exceeded"
     window.requestAnimationFrame(() => {
-      handleResize();
+      debounceHandResize();
     });
   });
   if(cy.value){
     resizeObserver.observe(cy.value);
   }
+  // 交互事件
+  cyInstance.on('mouseover','node',(e)=>{
+    const node = e.target;
+    node.addClass('highlight');
+    node.connectedEdges().addClass('highlight');
+    node.neighborhood().nodes().addClass('highlight');
+    if(hoverTimer){
+      clearTimeout(hoverTimer);
+    }
+    hoverTimer = setTimeout(()=>{
+      const connectionCount = node.degree();
+      const label = node.data('label');
+      const text = `${label} - connections: ${connectionCount}`;
+      node.data('detailLabel',text);
+      node.addClass('show-detail');
+    },400)
+  })
+  cyInstance.on('mouseout','node',(e)=>{
+    const node = e.target;
+    if(hoverTimer){
+      clearTimeout(hoverTimer);
+    }
+    node.removeClass('highlight show-detail');
+    node.connectedEdges().removeClass('highlight');
+    node.removeData('detailLabel');
+  })
 });
 
 onBeforeUnmount(()=>{

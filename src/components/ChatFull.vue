@@ -7,7 +7,7 @@
       </div>
     </div>
     <div ref="containerRef" 
-    class="overflow-y-auto custom-scrollbar flex-1 flex flex-col text-sm thread-xl:pt-(--header-height) pb-25">
+    class="overflow-y-auto custom-scrollbar flex-1 flex flex-col text-sm thread-xl:pt-(--header-height) pb-25 pt-[2rem] px-[2rem]">
       <!-- message -->
       <MessageItem
         v-for="msg in chatStore.currentMessages"

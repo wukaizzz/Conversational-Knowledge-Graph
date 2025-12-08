@@ -80,6 +80,11 @@ input {
   outline: none;
 }
 
+html, body, #app {
+  height: 100%;
+  overflow: hidden; /* 防止外层出现滚动条，交给内部容器处理 */
+}
+
 body {
   /* CSS3 抗锯齿形 让文字显示的更加清晰 */
   -webkit-font-smoothing: antialiased;

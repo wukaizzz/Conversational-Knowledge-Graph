@@ -40,7 +40,7 @@
           <button id="theme-toggle" @click="toggleTheme()" class="btn btn-theme">Light Mode</button>
           <!--  -->
           <button id="filter-toggle" @click="filterToggle()" class="btn btn-info">Show Filters</button>
-          <button id="labels-toggle" class="btn">Hide Labels</button>
+          <button id="labels-toggle" @click="isLabelHidden = !isLabelHidden" class="btn">Hide Labels</button>
           <!--  -->
           <button id="stats-toggle" @click="statsToggle()" class="btn btn-info">Stats</button>
         </div>
@@ -168,6 +168,7 @@
             :nodes="kgStore.currentGraphData.nodes"
             :edges="kgStore.currentGraphData.edges"
             :is-interactive="true"
+            :is-label-hidden="isLabelHidden"
             ref="graphRef"
             ></GenerateGraph>
             <div v-else class="flex items-center justify-center h-full text-gray-400">
@@ -197,6 +198,7 @@ import type { RawGraphData } from './types/kgData';
   const isStatsMenuHidden = ref(true);
   const isPhyscisSettginsMenuHidden = ref(true);
   const isFilterMenuHidden = ref(true);
+  const isLabelHidden = ref(false);
   function filterToggle(){
     isFilterMenuHidden.value = !isFilterMenuHidden.value
   } 
