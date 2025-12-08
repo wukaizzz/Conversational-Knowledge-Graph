@@ -1,15 +1,15 @@
 <template>
-  <div class="relative flex flex-1 h-full w-full transition-colors">
+  <div class="relative flex flex-1 h-full w-full transition-colors overflow-hidden">
       <div class="relative flex h-full w-full flex-row">
         <!-- <div class="box hover:bg-token-surface-hover">111</div>
         <div class="box">111</div> -->
         <ChatSideBar></ChatSideBar>
         <div class="relative flex h-full min-w-0 flex-1 flex-col">
-          <main class="relative h-full w-full flex-1 overflow-auto" id="main" z-index="-1">
+          <main class="relative h-full w-full flex-1 overflow-hidden" id="main" z-index="-1">
             <div id="thread" class="group h-full w-full">
-              <div class="composer-parent flex flex-col focus-visible:outline-0 overflow-hidden h-full">
+              <div class="composer-parent flex flex-col focus-visible:outline-0 h-full">
                 <!-- toubu -->
-                  <HeaderBar></HeaderBar>
+                  <!-- <HeaderBar></HeaderBar> -->
                 <div class="relative flex flex-col grow overflow-hidden basis-auto">
                   <div class="relative h-full">
                 <!-- full -->
@@ -120,48 +120,48 @@
     ],
     "edges": [
         {
-          "source_id": "vue_js",
-          "target_id": "javascript",
+          "source": "vue_js",
+          "target": "javascript",
           "label": "基于"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "frontend_framework",
+          "source": "vue_js",
+          "target": "frontend_framework",
           "label": "属于"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "evan_you",
+          "source": "vue_js",
+          "target": "evan_you",
           "label": "由...创建"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "single_page_application",
+          "source": "vue_js",
+          "target": "single_page_application",
           "label": "适用于"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "component",
+          "source": "vue_js",
+          "target": "component",
           "label": "采用"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "virtual_dom",
+          "source": "vue_js",
+          "target": "virtual_dom",
           "label": "使用"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "react",
+          "source": "vue_js",
+          "target": "react",
           "label": "类似"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "angular",
+          "source": "vue_js",
+          "target": "angular",
           "label": "类似"
         },
         {
-          "source_id": "vue_js",
-          "target_id": "progressive_framework",
+          "source": "vue_js",
+          "target": "progressive_framework",
           "label": "是"
         }
     ]
@@ -196,44 +196,18 @@
     }
     return {};
   }
-  
   const handleUserSend = async (text:string) => {
     console.log(`${text}`);
-    chatStore.currentMessages.push({
-      id: Date.now().toString(),
-      role: 'user',
-      type: 'text',
-      content: text,
-      isResumeCard: false,
-      timestamp: Date.now()
-    })
+    chatStore.addUserMessage(text);
     isGenerating.value = true;
-    const loadingId = 'loading-' + Date.now();
-    chatStore.currentMessages.push({
-      id:loadingId,
-      role: 'assistant',
-      type: 'loading',
-      isResumeCard: false,
-      timestamp: Date.now(),
-    })
-    setTimeout(()=>{
-      // 保留符合条件的
-      if(chatStore.currentSessionId){
-        const currentMessages = chatStore.messageCache[chatStore.currentSessionId] || []
-        chatStore.messageCache[chatStore.currentSessionId] = currentMessages.filter(m => m.id != loadingId);
-      }else{
-        console.log('sessionId不存在');
-      }
-      const transformed = transformGraphData(mockGraphData,true);
-      chatStore.currentMessages.push({
-        id:Date.now().toString(),
-        role: 'assistant',
-        type: 'graph',
-        content: `这是为您生成的关于${text}的知识图谱`,
-        graphData: transformed,
-        isResumeCard: false,
-        timestamp: Date.now(),
-      })
+    const loadingId = chatStore.addLoadingMessage();
+    setTimeout(async ()=>{
+      chatStore.removeMessage(loadingId);
+      const data = transformGraphData(mockGraphData,true);
+      await chatStore.addAssistantMessage(
+        '这是为您生成的图谱',
+        data
+      )
       isGenerating.value = false;
     },1500)
   } 

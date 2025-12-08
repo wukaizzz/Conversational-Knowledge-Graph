@@ -1,6 +1,7 @@
 
 <template>
-  <div  id="thread-bottom-container" class="group/thread-bottom-container bg-token-main-surface-primary relative isolate z-10 w-full basis-auto md:border-transparent md:pt-0 dark:border-white/20 md:dark:border-transparent content-fade flex flex-col">
+  <div  id="thread-bottom-container" 
+  class="group/thread-bottom-container bg-token-main-surface-primary relative isolate z-10 w-full basis-auto md:border-transparent md:pt-0 dark:border-white/20 md:dark:border-transparent content-fade flex flex-col">
     <div id="thread-bottom" class="px-[24px]">
       <div class="text-base mx-auto max-w-[40rem] xl:max-w-[48rem] px-(--thread-content-margin)">
         <div class="[--thread-content-max-width:40rem] thread-lg:[--thread-content-max-width:48rem] mx-auto max-w-(--thread-content-max-width) flex-1">

@@ -5,7 +5,7 @@ import type { TransformedData } from "@/knowledge_graph/types/kgData";
 import { generateGraphSnapshot } from "@/knowledge_graph/utils/graphSnapshot";
 // import fetchMessagesMap
 
-const DEFAULT_DATA = {
+const DEFAULT_DATA:ChatSessions = {
   "session_001": [
     {
       "id": "msg_001_1",
@@ -123,101 +123,158 @@ const DEFAULT_DATA = {
       "graphData": {
         "nodes": [
           {
-            "id": "vue_js",
-            "label": "Vue.js",
-            "wiki": "https://baike.baidu.com/item/Vue.js"
+            "group": "nodes",
+            "data": {
+              "id": "vue_js",
+              "label": "Vue.js",
+              "wiki": "https://baike.baidu.com/item/Vue.js"
+            }
           },
           {
-            "id": "javascript",
-            "label": "JavaScript",
-            "wiki": "https://baike.baidu.com/item/JavaScript"
+            "group": "nodes",
+            "data": {
+              "id": "javascript",
+              "label": "JavaScript",
+              "wiki": "https://baike.baidu.com/item/JavaScript"
+            }
           },
           {
-            "id": "frontend_framework",
-            "label": "前端框架",
-            "wiki": "https://baike.baidu.com/item/前端框架"
+            "group": "nodes",
+            "data": {
+              "id": "frontend_framework",
+              "label": "前端框架",
+              "wiki": "https://baike.baidu.com/item/前端框架"
+            }
           },
           {
-            "id": "evan_you",
-            "label": "尤雨溪",
-            "wiki": "https://baike.baidu.com/item/尤雨溪"
+            "group": "nodes",
+            "data": {
+              "id": "evan_you",
+              "label": "尤雨溪",
+              "wiki": "https://baike.baidu.com/item/尤雨溪"
+            }
           },
           {
-            "id": "single_page_application",
-            "label": "单页应用",
-            "wiki": "https://baike.baidu.com/item/单页应用"
+            "group": "nodes",
+            "data": {
+              "id": "single_page_application",
+              "label": "单页应用",
+              "wiki": "https://baike.baidu.com/item/单页应用"
+            }
           },
           {
-            "id": "component",
-            "label": "组件",
-            "wiki": "https://baike.baidu.com/item/组件"
+            "group": "nodes",
+            "data": {
+              "id": "component",
+              "label": "组件",
+              "wiki": "https://baike.baidu.com/item/组件"
+            }
           },
           {
-            "id": "virtual_dom",
-            "label": "虚拟DOM",
-            "wiki": "https://baike.baidu.com/item/虚拟DOM"
+            "group": "nodes",
+            "data": {
+              "id": "virtual_dom",
+              "label": "虚拟DOM",
+              "wiki": "https://baike.baidu.com/item/虚拟DOM"
+            }
           },
           {
-            "id": "react",
-            "label": "React",
-            "wiki": "https://baike.baidu.com/item/React"
+            "group": "nodes",
+            "data": {
+              "id": "react",
+              "label": "React",
+              "wiki": "https://baike.baidu.com/item/React"
+            }
           },
           {
-            "id": "angular",
-            "label": "Angular",
-            "wiki": "https://baike.baidu.com/item/Angular"
+            "group": "nodes",
+            "data": {
+              "id": "angular",
+              "label": "Angular",
+              "wiki": "https://baike.baidu.com/item/Angular"
+            }
           },
           {
-            "id": "progressive_framework",
-            "label": "渐进式框架",
-            "wiki": "https://baike.baidu.com/item/渐进式框架"
+            "group": "nodes",
+            "data": {
+              "id": "progressive_framework",
+              "label": "渐进式框架",
+              "wiki": "https://baike.baidu.com/item/渐进式框架"
+            }
           }
         ],
         "edges": [
           {
-            "source": "vue_js",
-            "target": "javascript",
-            "label": "基于"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "javascript",
+              "label": "基于"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "frontend_framework",
-            "label": "属于"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "frontend_framework",
+              "label": "属于"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "evan_you",
-            "label": "由...创建"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "evan_you",
+              "label": "由...创建"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "single_page_application",
-            "label": "适用于"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "single_page_application",
+              "label": "适用于"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "component",
-            "label": "采用"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "component",
+              "label": "采用"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "virtual_dom",
-            "label": "使用"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "virtual_dom",
+              "label": "使用"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "react",
-            "label": "类似"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "react",
+              "label": "类似"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "angular",
-            "label": "类似"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "angular",
+              "label": "类似"
+            }
           },
           {
-            "source": "vue_js",
-            "target": "progressive_framework",
-            "label": "是"
+            "group": "edges",
+            "data": {
+              "source": "vue_js",
+              "target": "progressive_framework",
+              "label": "是"
+            }
           }
         ]
       },
@@ -230,8 +287,8 @@ const DEFAULT_DATA = {
 type ChatSessions = Record<string, ChatMessage[]>;
 export const useChatStore = defineStore('chatMsgs',()=>{
   // Record语法糖
-  // const messageCache = reactive<ChatSessions>({});
-  const messageCache = DEFAULT_DATA as unknown as ChatSessions;//????
+  const messageCache = reactive<ChatSessions>(DEFAULT_DATA);
+  // const messageCache = DEFAULT_DATA as ChatSessions;
   const sessionIds = Object.keys(messageCache);
   const currentSessionId = ref<string | null>(null);
   const isLoading = ref(false);
@@ -262,34 +319,83 @@ export const useChatStore = defineStore('chatMsgs',()=>{
       isLoading.value = false;
     }
   }
-  const addMessage = (sessionId:string,message:ChatMessage)=>{
-    if(!messageCache[sessionId]){
-      messageCache[sessionId] = []
+  const addUserMessage = (text:string)=>{
+    if (!currentSessionId.value){
+      console.log('currentSessionId无效m,添加用户回答失败');
+      return;
     }
-    messageCache[sessionId].push(message);
-  }
-  const addAssistantMessage = async (graphData:TransformedData)=>{
     const newMessage:ChatMessage = {
+      id:Date.now().toString(),
+      role:"user",
+      type:"text",
+      content:text,
+      isResumeCard:false,
+      timestamp:Date.now()
+    }
+    const sessionId = currentSessionId.value;
+    if(!messageCache[sessionId]){
+      messageCache[sessionId] = [];
+    }
+    messageCache[sessionId].push(newMessage);
+
+  }
+  const addLoadingMessage = ():string => {
+    if(!currentSessionId.value){
+      console.log('currentSessionId无效');
+      return '';
+    }
+    const sessionId = currentSessionId.value;
+    const loadingId = 'loading-' + Date.now();
+    if (!messageCache[sessionId]) {
+      messageCache[sessionId] = [];
+    }
+    messageCache[sessionId].push({
+      id:loadingId,
+      role:'assistant',
+      type:'loading',
+      isResumeCard:false,
+      timestamp:Date.now(),
+    })
+    return loadingId;
+  }
+  const removeMessage = (msgId:string)=>{
+    if (!currentSessionId.value){
+      console.log('currentSessionId无效');
+      return;
+    }
+    const sessionId = currentSessionId.value;
+    if(messageCache[sessionId]){
+      console.log('删除对应的消息成功');
+      messageCache[sessionId] = messageCache[sessionId].filter((m)=>m.id !== msgId);
+    }
+  }
+  const addAssistantMessage = async (content:string,graphData:TransformedData)=>{
+    if(!currentSessionId.value){
+      console.log('currentSessionId无效');
+      return;
+    }
+    const sessionId = currentSessionId.value;
+    const newMessage = reactive<ChatMessage>({
       id:Date.now().toString(),
       role:'assistant',
       type:'graph',
-      content:'图谱生成完毕',
+      content:content,
       graphData:graphData,
       isResumeCard: true,
       snapshotUrl:'',
       timestamp:Date.now()
+    })
+    if(!messageCache[sessionId]){
+      messageCache[sessionId] = [];
     }
-    if(currentSessionId.value){
-      const sessionId = currentSessionId.value;
-      if(!messageCache[sessionId]){
-        messageCache[sessionId] = [];
-      }
-      messageCache[sessionId].push(newMessage);
-    }
+    messageCache[sessionId].push(newMessage);
+    
     try {
       const snapshot = await generateGraphSnapshot(graphData.nodes,graphData.edges);
       newMessage.snapshotUrl = snapshot;
+      console.log('快照生成成功');
     }catch(error){
+      // newMessage.snapshotUrl = snapshot;
       console.log('生成快照失败',error);
     }
   }
@@ -312,6 +418,9 @@ export const useChatStore = defineStore('chatMsgs',()=>{
     currentMessages,
     latestGraphData,
     loadChatMessages,
-    addMessage
+    addUserMessage,
+    addLoadingMessage,
+    removeMessage,
+    addAssistantMessage
   }
 })

@@ -39,15 +39,15 @@ export function transformGraphData(rawData:RawGraphData,isFirstInit:boolean = tr
   const transformedEdges: KGEdge[] = rawData.edges.map((rawEdge, index) => {
     const cytoscapeData: kgedge & { source: string, target: string, id: string } = {
       ...rawEdge,
-      source: rawEdge.source_id,
-      target: rawEdge.target_id,
+      source: rawEdge.source,
+      target: rawEdge.target,
       //生成唯一的 ID
-      id: `e${index}-${rawEdge.source_id}-${rawEdge.target_id}`,
+      id: `e${index}-${rawEdge.source}-${rawEdge.target}`,
     };
     return {
       data: cytoscapeData,
-      source: rawEdge.source_id,
-      target: rawEdge.target_id,
+      source: rawEdge.source,
+      target: rawEdge.target,
       group: 'edges',
     } as KGEdge; 
   });

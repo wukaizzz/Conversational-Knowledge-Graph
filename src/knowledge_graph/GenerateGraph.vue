@@ -141,68 +141,68 @@ function fetchNewNodes(sourceId:string,curPos:Position):TransformedData{
 ],
 "edges": [
 {
-"source_id": "frontend_framework",
-"target_id": "ui_framework",
+"source": "frontend_framework",
+"target": "ui_framework",
 "label": "包含类型"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "mvvm_pattern",
+"source": "frontend_framework",
+"target": "mvvm_pattern",
 "label": "常采用"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "data_binding",
+"source": "frontend_framework",
+"target": "data_binding",
 "label": "实现"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "component_development",
+"source": "frontend_framework",
+"target": "component_development",
 "label": "支持"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "dom_manipulation",
+"source": "frontend_framework",
+"target": "dom_manipulation",
 "label": "封装"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "state_management",
+"source": "frontend_framework",
+"target": "state_management",
 "label": "提供"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "routing",
+"source": "frontend_framework",
+"target": "routing",
 "label": "集成"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "web_application",
+"source": "frontend_framework",
+"target": "web_application",
 "label": "用于构建"
 },
 {
-"source_id": "frontend_framework",
-"target_id": "development_efficiency",
+"source": "frontend_framework",
+"target": "development_efficiency",
 "label": "提升"
 },
 {
-"source_id": "mvvm_pattern",
-"target_id": "data_binding",
+"source": "mvvm_pattern",
+"target": "data_binding",
 "label": "核心是"
 },
 {
-"source_id": "component_development",
-"target_id": "ui_framework",
+"source": "component_development",
+"target": "ui_framework",
 "label": "基于"
 },
 {
-"source_id": "state_management",
-"target_id": "data_binding",
+"source": "state_management",
+"target": "data_binding",
 "label": "依赖"
 },
 {
-"source_id": "routing",
-"target_id": "web_application",
+"source": "routing",
+"target": "web_application",
 "label": "应用于"
 }
 ]
