@@ -1,5 +1,5 @@
 <template>
-  <div class="card w-full flex-1 flex-col">
+  <div ref="card" class="card w-full flex-1 flex-col">
     <div class="w-full flex-1 flex items-center">
       <header id="page-header" class="w-full sticky top-0 px-2 flex items-center justify-between z-20 h-header-height pointer-events-none max-md:hidden  start-0 end-0 thread-xl:absolute thread-xl:start-0 thread-xl:end-0 thread-xl:shadow-none!">
         <div class="flex items-center">
@@ -33,16 +33,16 @@
     <div class="w-full flex-1 flex flex-row">
       <div id="graph-controls" class="flex flex-col justify-between h-[100vh] w-[148px]">
         <div class="flex flex-col">
-          <button id="physics-toggle" class="btn">Disable Physics</button>
+          <button ref="physics_toggle" class="btn">Disable Physics</button>
           <!--  -->
-          <button id="physics-settings-toggle" @click="physicsSettingsToggle()" class="btn btn-info">Physcis setting</button>
-          <button id="reset-btn" class="btn">reset</button>
-          <button id="theme-toggle" @click="toggleTheme()" class="btn btn-theme">Light Mode</button>
+          <button ref="physics_settings_toggle" @click="physicsSettingsToggle()" class="btn btn-info">Physcis setting</button>
+          <button ref="reset_btn" @click="resetView()" class="btn">resize</button>
+          <button ref="theme_toggle" @click="isLightMode = !isLightMode" class="btn btn-theme">Dark Mode</button>
           <!--  -->
-          <button id="filter-toggle" @click="filterToggle()" class="btn btn-info">Show Filters</button>
-          <button id="labels-toggle" @click="isLabelHidden = !isLabelHidden" class="btn">Hide Labels</button>
+          <button ref="filter_toggle" @click="filterToggle()" class="btn btn-info">Show Filters</button>
+          <button ref="labels_toggle" @click="isLabelHidden = !isLabelHidden" class="btn">Hide Labels</button>
           <!--  -->
-          <button id="stats-toggle" @click="statsToggle()" class="btn btn-info">Stats</button>
+          <button ref="stats_toggle" @click="statsToggle()" class="btn btn-info">Stats</button>
         </div>
       </div>
       <div class="flex flex-col min-w-0 flex-1">
@@ -169,6 +169,7 @@
             :edges="kgStore.currentGraphData.edges"
             :is-interactive="true"
             :is-label-hidden="isLabelHidden"
+            :is-light-mode="isLightMode"
             ref="graphRef"
             ></GenerateGraph>
             <div v-else class="flex items-center justify-center h-full text-gray-400">
@@ -187,18 +188,24 @@
   import './assets/main.css';
   import GenerateGraph from './GenerateGraph.vue';
   import NumberSlider from './NumberSlider.vue';
-  // 转换数据
-  import { transformGraphData } from './utils/transform';
   // 引入kg控制存储
   import { useKgStore } from '@/stores/kgStore';
-import type { EventObject } from 'cytoscape';
-import type { RawGraphData } from './types/kgData';
-  // import { handleSaveAndExit } from './GenerateGraph.vue';
   const kgStore = useKgStore();
+  // 节点
+  const card = ref<HTMLElement | null>(null);
+  const physics_toggle = ref<HTMLElement | null>(null);
+  const physics_settings_toggle = ref<HTMLElement | null>(null);
+  const reset_btn = ref<HTMLElement | null>(null);
+  const theme_toggle = ref<HTMLElement | null>(null);
+  const filter_toggle = ref<HTMLElement | null>(null);
+  const labels_toggle = ref<HTMLElement | null>(null);
+  const stats_toggle = ref<HTMLElement | null>(null);
+  //状态
   const isStatsMenuHidden = ref(true);
   const isPhyscisSettginsMenuHidden = ref(true);
   const isFilterMenuHidden = ref(true);
   const isLabelHidden = ref(false);
+  const isLightMode = ref(true);
   function filterToggle(){
     isFilterMenuHidden.value = !isFilterMenuHidden.value
   } 
@@ -207,10 +214,6 @@ import type { RawGraphData } from './types/kgData';
   }
   function statsToggle(){
     isStatsMenuHidden.value = !isStatsMenuHidden.value
-  }
-  function toggleTheme(){
-    // $('body').toggleClass('dark-mode');
-    document.querySelector('body')?.classList.toggle('dark-mode');
   }
   const graphRef = ref<InstanceType<typeof GenerateGraph> | null>(null);
   async function gotoChat(){
@@ -221,12 +224,44 @@ import type { RawGraphData } from './types/kgData';
       console.warn('图谱实例未加载，无法保存-KGView');
     }
   }
-  // const myGraphData = ref<RawGraphData>({
-      
-  // })
-  // const transformedGraphData = computed(()=>{
-  //   return transformGraphData(myGraphData.value);
-  // })
+  function resetView(){
+    if(!graphRef.value){
+      console.log('图谱实例未加载');
+      return;
+    }
+    graphRef.value.handleResetView();
+    console.log('重置视图');
+  }
+  watch(
+    ()=>isLightMode.value,
+    (value)=>{
+      if(theme_toggle.value){
+        if(value){
+          if(card.value){
+            card.value.style.backgroundColor = '#fff';
+          }
+          theme_toggle.value.textContent = 'Dark Mode'
+        }else{
+          if(card.value){
+            card.value.style.backgroundColor = '#000';
+          }
+          theme_toggle.value.textContent = 'Light Mode'
+        }
+      }
+    }
+  )
+  watch(
+    ()=>isLabelHidden.value,
+    (value)=>{
+      if(labels_toggle.value){
+        if(value){
+          labels_toggle.value.textContent = 'Show labels'
+        }else{
+          labels_toggle.value.textContent = 'Hide labels'
+        }
+      }
+    }
+  )
 </script>
 
 <style scoped>

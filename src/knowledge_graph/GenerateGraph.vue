@@ -36,16 +36,21 @@ import { transformGraphData } from './utils/transform';
 // 节流函数
 import { throttle,debounce } from '@/utils/throttle';
 import { useKgStore } from '@/stores/kgStore';
+// 缩放阈值
+const MIN_ZOOM = 0.4;
+const MAX_ZOOM = 1;
 const kgStore = useKgStore();
 interface Props {
   nodes: KGNode[],
   edges: KGEdge[],
   isInteractive?:boolean,
   isLabelHidden?:boolean,
+  isLightMode?:boolean,
 }
 const props = withDefaults(defineProps<Props>(),{
   isInteractive:true,
-  isLabelHidden:false
+  isLabelHidden:false,
+  isLightMode:true
 })
 const emit = defineEmits(['node-click','graph-click']);
 // 样式
@@ -236,6 +241,7 @@ const handleSaveAndExit = () => {
 }
 const handleLabelsHide = () => {
   if(!cyInstance){
+    console.log('图谱容器不存在');
     return;
   }
   const instance = cyInstance;
@@ -248,6 +254,39 @@ const handleLabelsHide = () => {
     }
   })
 }
+const handleLightMode = () => {
+  if(!cyInstance){
+    console.log('图谱容器不存在');
+    return;
+  }
+  const instance = cyInstance;
+  instance.batch(()=>{
+    const nodes = instance.nodes();
+    const edges = instance.edges();
+    if(props.isLightMode){
+      nodes.removeClass('darkMode');
+      edges.removeClass('darkMode');
+    }else{
+      nodes.addClass('darkMode');
+      edges.addClass('darkMode');
+    }
+  })
+}
+const handleResetView = ()=> {
+  if(!cyInstance){
+    console.log('图谱容器不存在');
+    return;
+  }
+  cyInstance.animate({
+    fit:{
+      eles: cyInstance.elements(),
+      padding: 50,
+    },
+    duration: 300,
+    easing:'ease-in-out-cubic'
+  })
+}
+
 const handleNodeClick = throttle((event:EventObject)=>{
     const isCtrlPressed = event.originalEvent.ctrlKey || event.originalEvent.metaKey;
     if(isCtrlPressed && cyInstance){
@@ -284,7 +323,12 @@ watch(
     handleLabelsHide();
   },
 )
-
+watch(
+  ()=>props.isLightMode,
+  ()=>{
+    handleLightMode();
+  }
+)
 const debounceHandResize = debounce(()=>{
   console.log('缩放');
   if(cyInstance){
@@ -293,7 +337,8 @@ const debounceHandResize = debounce(()=>{
   }
 },0);
 // 节点经过的定时器
-let hoverTimer:number | null = null;
+let hoverNodeTimer:number | null = null;
+let hoverEdgeTimer:number | null = null;
 onMounted(() =>{
   cyInstance = cytoscape({
     container: cy.value,
@@ -328,11 +373,11 @@ onMounted(() =>{
     const node = e.target;
     node.addClass('highlight');
     node.connectedEdges().addClass('highlight');
-    node.neighborhood().nodes().addClass('highlight');
-    if(hoverTimer){
-      clearTimeout(hoverTimer);
+    node.neighborhood().edges().addClass('highlight');
+    if(hoverNodeTimer){
+      clearTimeout(hoverNodeTimer);
     }
-    hoverTimer = setTimeout(()=>{
+    hoverNodeTimer = setTimeout(()=>{
       const connectionCount = node.degree();
       const label = node.data('label');
       const text = `${label} - connections: ${connectionCount}`;
@@ -342,12 +387,61 @@ onMounted(() =>{
   })
   cyInstance.on('mouseout','node',(e)=>{
     const node = e.target;
-    if(hoverTimer){
-      clearTimeout(hoverTimer);
+    if(hoverNodeTimer){
+      clearTimeout(hoverNodeTimer);
     }
     node.removeClass('highlight show-detail');
     node.connectedEdges().removeClass('highlight');
     node.removeData('detailLabel');
+  });
+  cyInstance.on('mouseover','edge',(e)=>{
+    const edge = e.target;
+    edge.addClass('highlight');
+    if(hoverEdgeTimer){
+      clearTimeout(hoverEdgeTimer);
+    }
+    hoverEdgeTimer = setTimeout(()=>{
+      const label = edge.data('label');
+      const text = `${label}`;
+      edge.data('detailLabel',text);
+    },100)
+  })
+  cyInstance.on('mouseout','edge',(e)=>{
+    const edge = e.target;
+    if(hoverEdgeTimer){
+      clearTimeout(hoverEdgeTimer);
+    }
+    edge.removeClass('highlight');
+    edge.removeData('detailLabel');
+  })
+  // 缩放阈值
+  cyInstance.on('zoom',()=>{
+    if(!cyInstance){
+      console.log('图谱容器不存在');
+      return;
+    }
+    const instance = cyInstance;
+    const currentZoom = cyInstance.zoom();
+    let opacity = (currentZoom - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM);
+    if(opacity < 0){
+      opacity = 0;
+    }
+    if(opacity > 1){
+      opacity = 1;
+    }
+    instance.batch(()=>{
+      instance.style()
+      .selector('node')
+      .style('text-opacity',opacity)
+      .style('text-outline-opacity',opacity)
+      .update();
+      instance.style()
+      .selector('edge')
+      .style('text-opacity',opacity)
+      .style('text-background',opacity)
+      .style('text-border-opacity',opacity)
+      .update();
+    })
   })
 });
 
@@ -361,6 +455,7 @@ onBeforeUnmount(()=>{
 })
 defineExpose({
   handleSaveAndExit,
+  handleResetView
 })
 //   // =========================
 //   // 点击节点：显示右侧配置项
