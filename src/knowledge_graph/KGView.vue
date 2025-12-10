@@ -4,7 +4,7 @@
       <header id="page-header" class="w-full sticky top-0 px-2 flex items-center justify-between z-20 h-header-height pointer-events-none max-md:hidden  start-0 end-0 thread-xl:absolute thread-xl:start-0 thread-xl:end-0 thread-xl:shadow-none!">
         <div class="flex items-center">
           <button type="button" class="group flex cursor-pointer justify-center items-center gap-1 rounded-lg min-h-9 px-2.5 text-lg hover:bg-token-surface-hover focus-visible:bg-token-surface-hover font-normal whitespace-nowrap focus-visible:outline-none">
-            <div class="text-black">Graph KG</div>
+            <div ref="header_title" class="text-black">Graph KG</div>
           </button>
         </div>
         <div class="flex items-center justify-center">
@@ -33,7 +33,7 @@
     <div class="w-full flex-1 flex flex-row">
       <div id="graph-controls" class="flex flex-col justify-between h-[100vh] w-[148px]">
         <div class="flex flex-col">
-          <button ref="physics_toggle" class="btn">Disable Physics</button>
+          <button ref="enable_physics_toggle" class="btn">Disable Physics</button>
           <!--  -->
           <button ref="physics_settings_toggle" @click="physicsSettingsToggle()" class="btn btn-info">Physcis setting</button>
           <button ref="reset_btn" @click="resetView()" class="btn">resize</button>
@@ -46,7 +46,7 @@
         </div>
       </div>
       <div class="flex flex-col min-w-0 flex-1">
-        <div id="stats-container" class="flex-col justify-center ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-5" :class="{ hidden:isStatsMenuHidden }">
+        <div ref="stats_container" class="flex-col justify-center ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-lg" :class="{ hidden:isStatsMenuHidden }">
           <h5 class="flex justify-start">graph Statistics</h5>
           <div class="flex flex-row flex-nowrap gap-[20px]">
             <div class="state-item">
@@ -66,7 +66,7 @@
             </div>
           </div>
         </div>
-        <div id="physics-settings-container" class="ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-5" :class="{ hidden:isPhyscisSettginsMenuHidden }">
+        <div ref="physics_settings_container" class="ml-[10px] px-[15px] mt-[10px] pb-[10px] border-1 border-solid border-[#ddd] rounded-lg" :class="{ hidden:isPhyscisSettginsMenuHidden }">
           <h5 class="flex justify-start">physcis Settings</h5>
           <div class="flex flex-row flex-wrap gap-[15px]">  
             <div class="min-w-[200px] flex">
@@ -131,7 +131,7 @@
             </div>
           </div>
         </div>
-        <div id="filter-menu-container" class="ml-[10px] px-[15px] mt-[10px] pt-[15px]" :class="{ hidden:isFilterMenuHidden }">
+        <div ref="filter_menu_container" class="ml-[10px] px-[15px] mt-[10px] pt-[15px] rounded-lg" :class="{ hidden:isFilterMenuHidden }">
           <div class="filter-row flex flex-row gap-[10px] mb-[10px]">
             <select id="select-node" class="form-select min-w-[770px] flex-1">
               <!-- options -->
@@ -193,13 +193,18 @@
   const kgStore = useKgStore();
   // 节点
   const card = ref<HTMLElement | null>(null);
-  const physics_toggle = ref<HTMLElement | null>(null);
+  const enable_physics_toggle = ref<HTMLElement | null>(null);
   const physics_settings_toggle = ref<HTMLElement | null>(null);
   const reset_btn = ref<HTMLElement | null>(null);
   const theme_toggle = ref<HTMLElement | null>(null);
   const filter_toggle = ref<HTMLElement | null>(null);
   const labels_toggle = ref<HTMLElement | null>(null);
   const stats_toggle = ref<HTMLElement | null>(null);
+  const header_title = ref<HTMLElement | null>(null)
+  //面板
+  const stats_container = ref<HTMLElement | null>(null);
+  const physics_settings_container = ref<HTMLElement | null>(null);
+  const filter_menu_container = ref<HTMLElement | null>(null);
   //状态
   const isStatsMenuHidden = ref(true);
   const isPhyscisSettginsMenuHidden = ref(true);
@@ -240,10 +245,34 @@
           if(card.value){
             card.value.style.backgroundColor = '#fff';
           }
+          if(header_title.value){
+            header_title.value.style.color = '#000'
+          }
+          if(stats_container.value){
+            stats_container.value.style.backgroundColor = '#F8F9FA';
+          }
+          if(physics_settings_container.value){
+            physics_settings_container.value.style.backgroundColor = '#F8F9FA';
+          }
+          if(filter_menu_container.value){
+            filter_menu_container.value.style.backgroundColor = '#F8F9FA';
+          }
           theme_toggle.value.textContent = 'Dark Mode'
         }else{
           if(card.value){
             card.value.style.backgroundColor = '#000';
+          }
+          if(header_title.value){
+            header_title.value.style.color = '#fff'
+          }
+          if(stats_container.value){
+            stats_container.value.style.backgroundColor = '#2D2D2D';
+          }
+          if(physics_settings_container.value){
+            physics_settings_container.value.style.backgroundColor = '#2D2D2D';
+          }
+          if(filter_menu_container.value){
+            filter_menu_container.value.style.backgroundColor = '#2D2D2D';
           }
           theme_toggle.value.textContent = 'Light Mode'
         }

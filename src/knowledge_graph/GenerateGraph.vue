@@ -36,9 +36,7 @@ import { transformGraphData } from './utils/transform';
 // 节流函数
 import { throttle,debounce } from '@/utils/throttle';
 import { useKgStore } from '@/stores/kgStore';
-// 缩放阈值
-const MIN_ZOOM = 0.4;
-const MAX_ZOOM = 1;
+
 const kgStore = useKgStore();
 interface Props {
   nodes: KGNode[],
@@ -248,8 +246,10 @@ const handleLabelsHide = () => {
   instance.batch(()=>{
     const nodes = instance.nodes();
     if(props.isLabelHidden){
+      console.log('标签隐藏');
       nodes.addClass('hide-labels');
     }else{
+      console.log('标签出现');
       nodes.removeClass('hide-labels');
     }
   })
@@ -420,16 +420,29 @@ onMounted(() =>{
       console.log('图谱容器不存在');
       return;
     }
+    const MIN_LIMIT = 0.3;
+    const MIN_START = 0.6;
+    const MAX_LIMIT = 10;
+    const MAX_START = 13;
     const instance = cyInstance;
     const currentZoom = cyInstance.zoom();
-    let opacity = (currentZoom - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM);
-    if(opacity < 0){
+    let opacity:number = 1;
+    if(currentZoom < MIN_LIMIT){
+      opacity = 0;
+    }else if(currentZoom < MIN_START){
+      opacity = (currentZoom - MIN_LIMIT) / (MIN_START - MIN_LIMIT);
+    }
+    else if(currentZoom > MAX_LIMIT){
+      opacity = 0;
+    }else if(currentZoom > MAX_START){
+      opacity = (MAX_LIMIT - currentZoom) / (MAX_LIMIT - MAX_START);
+    }
+    if(currentZoom < 0){
       opacity = 0;
     }
-    if(opacity > 1){
-      opacity = 1;
-    }
-    instance.batch(()=>{
+    console.log(currentZoom);
+    if(currentZoom < (MIN_START + 0.1) || currentZoom > (MAX_START - 0.1)){
+      instance.batch(()=>{
       instance.style()
       .selector('node')
       .style('text-opacity',opacity)
@@ -438,10 +451,11 @@ onMounted(() =>{
       instance.style()
       .selector('edge')
       .style('text-opacity',opacity)
-      .style('text-background',opacity)
+      .style('text-background-opacity',opacity)
       .style('text-border-opacity',opacity)
       .update();
     })
+    }
   })
 });
 
@@ -533,8 +547,15 @@ defineExpose({
   .cy {
   flex: 1;
   height: 100vh;
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
+  border: none; 
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none; 
+  
 }
+
 
   .side-panel {
     width: 260px;
